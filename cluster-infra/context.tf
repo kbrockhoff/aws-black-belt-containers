@@ -1,5 +1,5 @@
 module "this" {
-  source = "git::git@bitbucket.org:DBSDEVMAN/terraform-local-dbscontext.git?ref=v0.3.0"
+  source = "git::https://github.com/daughertylabs/terraform-local-context.git?ref=v1.0.1"
 
   enabled         = true
   organization    = "dl"
