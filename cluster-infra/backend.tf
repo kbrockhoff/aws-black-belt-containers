@@ -43,13 +43,7 @@ terraform {
     }
   }
 
-  backend "s3" {
-    region         = "us-east-2"
-    bucket         = "dl-aws-sbtrng-tfstate-838520979566"
-    key            = "kwb-eksblueprints-full/terraform.tfstate"
-    dynamodb_table = "dl-aws-sbtrng-tfstate-838520979566-lock"
-    encrypt        = "true"
-  }
+  backend "s3" {}
 }
 
 provider "aws" {
