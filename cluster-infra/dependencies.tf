@@ -35,3 +35,12 @@ data "aws_eks_addon_version" "default" {
   kubernetes_version = module.eks_blueprints.eks_cluster_version
   most_recent        = false
 }
+
+data "aws_ssm_parameter" "publiczoneid" {
+  name     = "/dbs/aft/publiczoneid"
+  provider = aws.use2
+}
+
+data "aws_route53_zone" "public" {
+  zone_id = data.aws_ssm_parameter.publiczoneid.value
+}
