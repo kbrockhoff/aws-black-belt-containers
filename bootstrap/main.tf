@@ -25,7 +25,7 @@ data "aws_iam_policy_document" "github" {
     condition {
       test     = "StringEquals"
       variable = "token.actions.githubusercontent.com:sub"
-      values   = ["repo:kbrockhoff/aws-black-belt-containers:ref:refs/heads/main"]
+      values   = ["repo:kbrockhoff/aws-black-belt-containers"]
     }
   }
 }
