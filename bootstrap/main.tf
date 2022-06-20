@@ -23,9 +23,9 @@ data "aws_iam_policy_document" "github" {
       values   = ["sts.amazonaws.com"]
     }
     condition {
-      test     = "StringEquals"
+      test     = "StringLike"
       variable = "token.actions.githubusercontent.com:sub"
-      values   = ["repo:kbrockhoff/aws-black-belt-containers*"]
+      values   = ["repo:kbrockhoff/aws-black-belt-containers:*"]
     }
   }
 }
