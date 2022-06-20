@@ -4,6 +4,21 @@ variable "region" {
   default     = "us-west-2"
 }
 
+variable "sso_administrator_role_name" {
+  description = "Name of IAM role tied to AWS SSO for Administrator access."
+  type        = string
+}
+
+variable "sso_poweruser_role_name" {
+  description = "Name of IAM role tied to AWS SSO for PowerUser access."
+  type        = string
+}
+
+variable "sso_readonly_role_name" {
+  description = "Name of IAM role tied to AWS SSO for ReadOnly access."
+  type        = string
+}
+
 variable "eks_version" {
   description = "Version of the EKS K8S cluster"
   type        = string
@@ -53,4 +68,46 @@ variable "coredns_version" {
   description = "coredns addon version to use."
   type        = string
   default     = "v1.8.7-eksbuild.1"
+}
+
+variable "enable_access_logs" {
+  description = "Set to false to disable access logging."
+  type        = bool
+  default     = true
+}
+
+variable "create_access_logs_bucket" {
+  description = "Set to false to use supplied access logs bucket."
+  type        = bool
+  default     = true
+}
+
+variable "access_logs_bucket" {
+  description = "The S3 bucket name to store the access logs in if not creating."
+  type        = string
+  default     = ""
+}
+
+variable "subdomain_part" {
+  description = "Subdomain within the public domain name for the account to assign to the created load balancer."
+  type        = string
+  default     = ""
+}
+
+variable "create_acm_certificate" {
+  description = "Set to false to not request and validate an ACM certificate."
+  type        = bool
+  default     = true
+}
+
+variable "acm_certificate_arn" {
+  description = "If not creating ACM-managed certificate, the ARN of the default certificate to use."
+  type        = string
+  default     = ""
+}
+
+variable "additional_acm_certs" {
+  description = "ARN's of addtional ACM-managed certificates which load balancer should support via SNI."
+  type        = list(string)
+  default     = []
 }
