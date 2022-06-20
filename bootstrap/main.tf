@@ -1,6 +1,7 @@
 resource "aws_iam_openid_connect_provider" "github" {
   url = "https://token.actions.githubusercontent.com"
   thumbprint_list = [
+    "6938fd4d98bab03faadb97b34396831e3780aea1",
   ]
   client_id_list = [
     "sts.amazonaws.com",
@@ -16,6 +17,16 @@ data "aws_iam_policy_document" "github" {
       identifiers = [aws_iam_openid_connect_provider.github.arn]
     }
     actions = ["sts:AssumeRoleWithWebIdentity"]
+    condition {
+      test     = "StringEquals"
+      variable = "token.actions.githubusercontent.com:aud"
+      values   = ["sts.amazonaws.com"]
+    }
+    condition {
+      test     = "StringEquals"
+      variable = "token.actions.githubusercontent.com:sub"
+      values   = ["repo:kbrockhoff/aws-black-belt-containers:ref:refs/heads/main"]
+    }
   }
 }
 
