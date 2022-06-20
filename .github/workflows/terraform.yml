@@ -16,6 +16,9 @@ jobs:
   terraform:
     name:   ${{matrix.runner}} - ${{ matrix.environment }}
     runs-on: [ '${{ matrix.runner }}']
+    permissions:
+      id-token: write
+      contents: read
     strategy:
       max-parallel: 1
       matrix:
