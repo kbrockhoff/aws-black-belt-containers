@@ -1,1 +1,0 @@
-profile = "k8sgreen"
