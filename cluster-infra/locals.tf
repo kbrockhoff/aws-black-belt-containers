@@ -4,6 +4,7 @@ locals {
   partition_suffix = data.aws_partition.current.dns_suffix
   cluster_name     = module.this.name_prefix
   lb_name          = local.cluster_name
+  waf_name         = "${local.cluster_name}-waf"
 
   eks_map_roles = concat(
     [{

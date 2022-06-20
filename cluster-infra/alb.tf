@@ -37,11 +37,10 @@ resource "aws_lb_target_group" "eksingress" {
 resource "aws_lb_listener" "https" {
   load_balancer_arn = aws_lb.eksingress.arn
   port              = "443"
-  protocol          = "TLS"
+  protocol          = "HTTPS"
   certificate_arn   = local.acm_certificate_arn
-  ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
   alpn_policy       = "HTTP2Preferred"
-
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.eksingress.arn
@@ -49,6 +48,22 @@ resource "aws_lb_listener" "https" {
 
   tags = merge(module.this.tags, {
     Name = "${local.lb_name}-https"
+  })
+
+  depends_on = [aws_acm_certificate_validation.ingress]
+}
+
+resource "aws_lb_listener" "http" {
+  load_balancer_arn = aws_lb.eksingress.arn
+  port              = "80"
+  protocol          = "HTTP"
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.eksingress.arn
+  }
+
+  tags = merge(module.this.tags, {
+    Name = "${local.lb_name}-http"
   })
 
   depends_on = [aws_acm_certificate_validation.ingress]
