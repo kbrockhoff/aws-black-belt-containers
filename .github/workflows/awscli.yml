@@ -1,0 +1,30 @@
+name: AWS Cleanup
+
+on:
+  workflow_dispatch:
+    inputs:
+      cmd:
+        description: 'AWS CLI Command'
+        required: true
+
+jobs:
+  delete:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./cluster-infra
+
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: arn:aws:iam::838520979566:role/dl-aws-k8strng-sbox-kbgithub
+          aws-region: us-west-2
+
+      - name: Delete resource
+        run: aws ${{ github.event.inputs.cmd }}
