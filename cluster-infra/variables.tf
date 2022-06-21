@@ -88,6 +88,12 @@ variable "access_logs_bucket" {
   default     = ""
 }
 
+variable "elb_account_id" {
+  description = "The Elastic Load Balancing account ID for the region."
+  type        = string
+  default     = "797873946194"
+}
+
 variable "subdomain_part" {
   description = "Subdomain within the public domain name for the account to assign to the created load balancer."
   type        = string
