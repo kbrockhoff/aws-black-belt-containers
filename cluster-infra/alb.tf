@@ -21,16 +21,27 @@ resource "aws_lb" "eksingress" {
   depends_on = [aws_s3_bucket.access_logs]
 }
 
-resource "aws_lb_target_group" "eksingress" {
-  name              = "${local.lb_name}-tg"
-  port              = 443
-  protocol          = "TLS"
-  target_type       = "ip"
-  vpc_id            = data.aws_vpc.shared.id
-  proxy_protocol_v2 = true
+resource "aws_lb_target_group" "https" {
+  name        = "${local.lb_name}-https"
+  port        = 443
+  protocol    = "HTTPS"
+  target_type = "ip"
+  vpc_id      = data.aws_vpc.shared.id
 
   tags = merge(module.this.tags, {
-    Name = "${local.lb_name}-tg"
+    Name = "${local.lb_name}-https"
+  })
+}
+
+resource "aws_lb_target_group" "http" {
+  name        = "${local.lb_name}-http"
+  port        = 80
+  protocol    = "HTTP"
+  target_type = "ip"
+  vpc_id      = data.aws_vpc.shared.id
+
+  tags = merge(module.this.tags, {
+    Name = "${local.lb_name}-http"
   })
 }
 
@@ -40,10 +51,9 @@ resource "aws_lb_listener" "https" {
   protocol          = "HTTPS"
   certificate_arn   = local.acm_certificate_arn
   ssl_policy        = "ELBSecurityPolicy-2016-08"
-  alpn_policy       = "HTTP2Preferred"
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.eksingress.arn
+    target_group_arn = aws_lb_target_group.https.arn
   }
 
   tags = merge(module.this.tags, {
@@ -59,7 +69,7 @@ resource "aws_lb_listener" "http" {
   protocol          = "HTTP"
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.eksingress.arn
+    target_group_arn = aws_lb_target_group.http.arn
   }
 
   tags = merge(module.this.tags, {
