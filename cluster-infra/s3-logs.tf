@@ -4,7 +4,7 @@ data "aws_iam_policy_document" "log_storage" {
     effect = "Allow"
     principals {
       type        = "AWS"
-      identifiers = ["arn:aws:iam::127311923021:root"]
+      identifiers = ["arn:aws:iam::${var.elb_account_id}:root"]
     }
     actions = [
       "s3:PutObject",
