@@ -9,6 +9,9 @@ resource "aws_wafv2_web_acl" "eksingress" {
   rule {
     name     = "awscommon"
     priority = 1
+    override_action {
+      count {}
+    }
     statement {
       managed_rule_group_statement {
         name        = "AWSManagedRulesCommonRuleSet"

@@ -11,7 +11,8 @@ module "eks_blueprints" {
 
   cluster_kms_key_deletion_window_in_days = 14
   cluster_kms_key_additional_admin_arns = [
-    "arn:${local.partition_id}:iam::${local.account_id}:root",
+    data.aws_iam_role.administrator.arn,
+    data.aws_iam_role.poweruser.arn,
   ]
 
   cluster_endpoint_public_access  = true
