@@ -2,7 +2,7 @@ module "eks_blueprints" {
   source = "github.com/aws-ia/terraform-aws-eks-blueprints?ref=v4.1.0"
 
   create_eks                = true
-  cluster_name              = local.name
+  cluster_name              = local.cluster_name
   cluster_version           = var.eks_version
   vpc_id                    = data.aws_vpc.shared.id
   private_subnet_ids        = data.aws_subnets.node.ids
@@ -62,27 +62,35 @@ module "eks_blueprints" {
     }
   }
 
-  fargate_profiles = {
-    default = {
-      fargate_profile_name = "default"
-      fargate_profile_namespaces = [
-        {
-          namespace = "default"
-          k8s_labels = {
-            Environment = "preprod"
-            Zone        = "dev"
-            env         = "fargate"
-          }
-      }]
-      subnet_ids = data.aws_subnets.node.ids
-      additional_tags = {
-        ExtraTag = "Fargate"
+  application_teams = {
+    team-blue = {
+      "labels" = {
+        "app.kubernetes.io/managed-by" = "Terraform"
+        "app.kubernetes.io/name"       = "contour"
       }
+      "quota" = {
+        "requests.cpu"    = "1000m",
+        "requests.memory" = "4Gi",
+        "limits.cpu"      = "2000m",
+        "limits.memory"   = "8Gi",
+        "pods"            = "10",
+        "secrets"         = "10",
+        "services"        = "10"
+      }
+      manifests_dir = "./manifests"
+      users = [
+        data.aws_iam_role.readonly.arn,
+      ]
     }
   }
-
-  application_teams = {}
-  platform_teams    = {}
+  platform_teams = {
+    cloudops = {
+      users = [
+        data.aws_iam_role.administrator.arn,
+        data.aws_iam_role.poweruser.arn,
+      ]
+    }
+  }
 
   tags = module.this.tags
 }

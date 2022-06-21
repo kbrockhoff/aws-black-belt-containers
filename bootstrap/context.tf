@@ -9,8 +9,8 @@ module "this" {
   environment     = "sandbox"
   env_subtype     = ""
   project_owners  = ["kevin.brockhoff@daugherty.com"]
-  project         = "N/A"
-  project_type    = "N/A"
+  project         = "Black Belts"
+  project_type    = "NONBILL"
   code_owners     = ["kevin.brockhoff@daugherty.com"]
   data_owners     = ["kevin.brockhoff@daugherty.com"]
   availability    = "preemptable"
