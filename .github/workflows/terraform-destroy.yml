@@ -1,0 +1,43 @@
+name: 'Terraform Destroy'
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  terraform:
+    name: 'Terraform'
+    runs-on: ubuntu-latest
+    environment: development
+    permissions:
+      id-token: write
+      contents: read
+
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./cluster-infra
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: arn:aws:iam::838520979566:role/dl-aws-k8strng-sbox-kbgithub
+          aws-region: us-west-2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.2.3
+          terraform_wrapper: false
+
+      - name: Terraform Init
+        run: terraform init -backend-config=envs/dev/backend.tfvars -upgrade=true
+
+      - name: Terraform Destroy
+        run: terraform destroy -auto-approve -input=false -var-file=envs/dev/terraform.tfvars
