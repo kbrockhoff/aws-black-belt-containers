@@ -11,8 +11,6 @@ spec:
  securityGroups:
  - ${local.pod_security_group_id}
 YAML
-
-  depends_on = [aws_eks_addon.vpccni]
 }
 
 resource "local_file" "config" {
