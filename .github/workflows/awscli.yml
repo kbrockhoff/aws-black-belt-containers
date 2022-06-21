@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       cmd:
-        description: 'AWS CLI Command'
+        description: 'CLI Command'
         required: true
 
 jobs:
@@ -26,5 +26,5 @@ jobs:
           role-to-assume: arn:aws:iam::838520979566:role/dl-aws-k8strng-sbox-kbgithub
           aws-region: us-west-2
 
-      - name: Delete resource
-        run: aws ${{ github.event.inputs.cmd }}
+      - name: Execute command
+        run: ${{ github.event.inputs.cmd }}
