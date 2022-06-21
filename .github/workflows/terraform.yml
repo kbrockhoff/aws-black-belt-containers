@@ -2,29 +2,21 @@ name: 'Terraform Deployment'
 
 on:
   push:
-    branches:
-    - main
-    - '**'
+    branches: [ main ]
   pull_request:
     branches: [ main ]
 
 permissions:
   contents: read
 
-
 jobs:
   terraform:
-    name:   ${{matrix.runner}} - ${{ matrix.environment }}
-    runs-on: [ '${{ matrix.runner }}']
+    name: 'Terraform'
+    runs-on: ubuntu-latest
+    environment: development
     permissions:
       id-token: write
       contents: read
-    strategy:
-      max-parallel: 1
-      matrix:
-        include:
-          - environment: dev
-            runner: ubuntu-latest
 
     defaults:
       run:
@@ -48,14 +40,14 @@ jobs:
         terraform_wrapper: false
 
     - name: Terraform Init
-      run: terraform init -backend-config=envs/${{ matrix.environment }}/backend.tfvars -upgrade=true
+      run: terraform init -backend-config=envs/dev/backend.tfvars -upgrade=true
 
     - name: Terraform Format
       run: terraform fmt -check
 
     - name: Terraform Plan
-      run: terraform plan -input=false -var-file=envs/${{ matrix.environment }}/terraform.tfvars
+      run: terraform plan -input=false -var-file=envs/dev/terraform.tfvars
 
     - name: Terraform Apply
-      if: github.ref == 'refs/heads/main'
-      run: terraform apply -auto-approve -input=false -var-file=envs/${{ matrix.environment }}/terraform.tfvars
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      run: terraform apply -auto-approve -input=false -var-file=envs/dev/terraform.tfvars

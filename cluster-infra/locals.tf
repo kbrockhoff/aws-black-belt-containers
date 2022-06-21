@@ -6,19 +6,25 @@ locals {
   lb_name          = local.cluster_name
   waf_name         = "${local.cluster_name}-waf"
 
-  eks_map_roles = concat(
-    [{
+  eks_map_roles = concat([
+    {
       rolearn  = data.aws_iam_role.administrator.arn
-      username = "administrator"
+      username = "user:{{SessionName}}"
       groups   = ["system:masters"]
-    }],
+    },
+    {
+      rolearn  = data.aws_iam_role.poweruser.arn
+      username = "user:{{SessionName}}"
+      groups   = ["system:masters"]
+    }
+    ],
     var.eks_map_roles
   )
 
   all_cidrs = [for cba in data.aws_vpc.shared.cidr_block_associations : cba.cidr_block]
 
   log_kms_name  = "${local.cluster_name}-ekslogs"
-  log_kms_alias = "alias/eks_logs_key"
+  log_kms_alias = "alias/${local.log_kms_name}-key"
 
   create_logs_bucket = var.enable_access_logs && var.create_access_logs_bucket
   logs_bucket_name = var.create_access_logs_bucket && length(var.access_logs_bucket) == 0 ? (

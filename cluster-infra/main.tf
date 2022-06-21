@@ -10,7 +10,9 @@ module "eks_blueprints" {
   cluster_service_ipv4_cidr = "172.20.0.0/16"
 
   cluster_kms_key_deletion_window_in_days = 14
-  cluster_kms_key_additional_admin_arns   = []
+  cluster_kms_key_additional_admin_arns = [
+    "arn:${local.partition_id}:iam::${local.account_id}:root",
+  ]
 
   cluster_endpoint_public_access  = true
   cluster_endpoint_private_access = true
@@ -54,48 +56,20 @@ module "eks_blueprints" {
   }
 
   managed_node_groups = {
-    mg_t3a = {
+    alwayson = {
       node_group_name      = "managed-ondemand"
-      instance_types       = ["t3a.medium"]
+      instance_types       = ["m6a.xlarge"]
       subnet_ids           = data.aws_subnets.node.ids
       force_update_version = true
     }
   }
 
-  application_teams = {
-    team-blue = {
-      "labels" = {
-        "app.kubernetes.io/managed-by" = "Terraform"
-        "app.kubernetes.io/name"       = "contour"
-      }
-      "quota" = {
-        "requests.cpu"    = "1000m",
-        "requests.memory" = "4Gi",
-        "limits.cpu"      = "2000m",
-        "limits.memory"   = "8Gi",
-        "pods"            = "10",
-        "secrets"         = "10",
-        "services"        = "10"
-      }
-      manifests_dir = "./manifests"
-      users = [
-        data.aws_iam_role.readonly.arn,
-      ]
-    }
-  }
-  platform_teams = {
-    cloudops = {
-      users = [
-        data.aws_iam_role.administrator.arn,
-        data.aws_iam_role.poweruser.arn,
-      ]
-    }
-  }
+  map_roles = local.eks_map_roles
 
   tags = module.this.tags
 }
 
-module "eks_blueprints_kubernetes_addons" {
+module "eks_blueprints_base_addons" {
   source = "github.com/aws-ia/terraform-aws-eks-blueprints//modules/kubernetes-addons?ref=v4.1.0"
 
   eks_cluster_id               = module.eks_blueprints.eks_cluster_id
@@ -107,6 +81,7 @@ module "eks_blueprints_kubernetes_addons" {
     addon_version     = data.aws_eks_addon_version.latest["vpc-cni"].version
     resolve_conflicts = "OVERWRITE"
   }
+
   enable_amazon_eks_coredns = true
   amazon_eks_coredns_config = {
     addon_version     = data.aws_eks_addon_version.latest["coredns"].version
@@ -119,66 +94,26 @@ module "eks_blueprints_kubernetes_addons" {
   }
   enable_amazon_eks_aws_ebs_csi_driver = true
 
-  #K8s Add-ons
-  enable_argocd            = true
-  enable_aws_for_fluentbit = true
-  aws_for_fluentbit_helm_config = {
-    name                                      = "aws-for-fluent-bit"
-    chart                                     = "aws-for-fluent-bit"
-    repository                                = "https://aws.github.io/eks-charts"
-    version                                   = "0.1.16"
-    namespace                                 = "logging"
-    aws_for_fluent_bit_cw_log_group           = "/${module.eks_blueprints.eks_cluster_id}/worker-fluentbit-logs" # Optional
-    aws_for_fluentbit_cwlog_retention_in_days = 90
-    create_namespace                          = true
-    values = [templatefile("${path.module}/templates/aws-for-fluentbit-values.yaml", {
-      region                          = var.region
-      aws_for_fluent_bit_cw_log_group = "/${module.eks_blueprints.eks_cluster_id}/worker-fluentbit-logs"
-    })]
-    set = [
-      {
-        name  = "nodeSelector.kubernetes\\.io/os"
-        value = "linux"
-      }
-    ]
-  }
-  enable_fargate_fluentbit = true
-  fargate_fluentbit_addon_config = {
-    output_conf = <<-EOF
-    [OUTPUT]
-      Name cloudwatch_logs
-      Match *
-      region ${var.region}
-      log_group_name /${module.eks_blueprints.eks_cluster_id}/fargate-fluentbit-logs
-      log_stream_prefix "fargate-logs-"
-      auto_create_group true
-    EOF
+  tags = module.this.tags
 
-    filters_conf = <<-EOF
-    [FILTER]
-      Name parser
-      Match *
-      Key_Name log
-      Parser regex
-      Preserve_Key True
-      Reserve_Data True
-    EOF
+  depends_on = [module.eks_blueprints]
+}
 
-    parsers_conf = <<-EOF
-    [PARSER]
-      Name regex
-      Format regex
-      Regex ^(?<time>[^ ]+) (?<stream>[^ ]+) (?<logtag>[^ ]+) (?<message>.+)$
-      Time_Key time
-      Time_Format %Y-%m-%dT%H:%M:%S.%L%z
-      Time_Keep On
-      Decode_Field_As json message
-    EOF
-  }
-  enable_aws_load_balancer_controller = true
-  enable_cluster_autoscaler           = true
-  enable_metrics_server               = true
-  enable_prometheus                   = true
+module "vpc_cni" {
+  source = "./vpc-cni"
+
+  enabled                   = true
+  cluster_name              = module.eks_blueprints.eks_cluster_id
+  vpc_id                    = data.aws_vpc.shared.id
+  vpccni_version            = data.aws_eks_addon_version.latest["vpc-cni"].version
+  pod_subnets               = data.aws_subnets.pod.ids
+  enable_custom_network     = true
+  pod_create_security_group = true
+  cluster_security_group_id = module.eks_blueprints.cluster_security_group_id
+  cluster_oidc_issuer_url   = module.eks_blueprints.eks_oidc_issuer_url
+  oidc_provider_arn         = module.eks_blueprints.eks_oidc_provider_arn
 
   tags = module.this.tags
+
+  depends_on = [module.eks_blueprints_base_addons]
 }
