@@ -10,7 +10,9 @@ module "eks_blueprints" {
   cluster_service_ipv4_cidr = "172.20.0.0/16"
 
   cluster_kms_key_deletion_window_in_days = 14
-  cluster_kms_key_additional_admin_arns   = []
+  cluster_kms_key_additional_admin_arns = [
+    "arn:${local.partition_id}:iam::${local.account_id}:root",
+  ]
 
   cluster_endpoint_public_access  = true
   cluster_endpoint_private_access = true
@@ -54,9 +56,9 @@ module "eks_blueprints" {
   }
 
   managed_node_groups = {
-    mg_t3a = {
+    alwayson = {
       node_group_name      = "managed-ondemand"
-      instance_types       = ["t3a.medium"]
+      instance_types       = ["m6a.xlarge"]
       subnet_ids           = data.aws_subnets.node.ids
       force_update_version = true
     }
@@ -95,7 +97,7 @@ module "eks_blueprints" {
   tags = module.this.tags
 }
 
-module "eks_blueprints_kubernetes_addons" {
+module "eks_blueprints_base_addons" {
   source = "github.com/aws-ia/terraform-aws-eks-blueprints//modules/kubernetes-addons?ref=v4.1.0"
 
   eks_cluster_id               = module.eks_blueprints.eks_cluster_id
@@ -107,6 +109,7 @@ module "eks_blueprints_kubernetes_addons" {
     addon_version     = data.aws_eks_addon_version.latest["vpc-cni"].version
     resolve_conflicts = "OVERWRITE"
   }
+
   enable_amazon_eks_coredns = true
   amazon_eks_coredns_config = {
     addon_version     = data.aws_eks_addon_version.latest["coredns"].version
@@ -118,6 +121,37 @@ module "eks_blueprints_kubernetes_addons" {
     resolve_conflicts = "OVERWRITE"
   }
   enable_amazon_eks_aws_ebs_csi_driver = true
+
+  tags = module.this.tags
+
+  depends_on = [module.eks_blueprints]
+}
+
+module "vpc_cni" {
+  source = "./vpc-cni"
+
+  enabled                   = true
+  cluster_name              = module.eks_blueprints.eks_cluster_id
+  vpc_id                    = data.aws_vpc.shared.id
+  vpccni_version            = data.aws_eks_addon_version.latest["vpc-cni"].version
+  pod_subnets               = data.aws_subnets.pod.ids
+  enable_custom_network     = true
+  pod_create_security_group = true
+  cluster_security_group_id = module.eks_blueprints.cluster_security_group_id
+  cluster_oidc_issuer_url   = module.eks_blueprints.eks_oidc_issuer_url
+  oidc_provider_arn         = module.eks_blueprints.eks_oidc_provider_arn
+
+  tags = module.this.tags
+
+  depends_on = [module.eks_blueprints_base_addons]
+}
+
+module "eks_blueprints_kubernetes_addons" {
+  source = "github.com/aws-ia/terraform-aws-eks-blueprints//modules/kubernetes-addons?ref=v4.1.0"
+
+  eks_cluster_id               = module.eks_blueprints.eks_cluster_id
+  eks_worker_security_group_id = module.eks_blueprints.worker_node_security_group_id
+  auto_scaling_group_names     = module.eks_blueprints.self_managed_node_group_autoscaling_groups
 
   #K8s Add-ons
   enable_argocd            = true
@@ -181,4 +215,6 @@ module "eks_blueprints_kubernetes_addons" {
   enable_prometheus                   = true
 
   tags = module.this.tags
+
+  depends_on = [module.vpc_cni]
 }
