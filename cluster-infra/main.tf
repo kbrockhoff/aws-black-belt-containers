@@ -64,35 +64,7 @@ module "eks_blueprints" {
     }
   }
 
-  application_teams = {
-    team-blue = {
-      "labels" = {
-        "app.kubernetes.io/managed-by" = "Terraform"
-        "app.kubernetes.io/name"       = "contour"
-      }
-      "quota" = {
-        "requests.cpu"    = "1000m",
-        "requests.memory" = "4Gi",
-        "limits.cpu"      = "2000m",
-        "limits.memory"   = "8Gi",
-        "pods"            = "10",
-        "secrets"         = "10",
-        "services"        = "10"
-      }
-      manifests_dir = "./manifests"
-      users = [
-        data.aws_iam_role.readonly.arn,
-      ]
-    }
-  }
-  platform_teams = {
-    cloudops = {
-      users = [
-        data.aws_iam_role.administrator.arn,
-        data.aws_iam_role.poweruser.arn,
-      ]
-    }
-  }
+  map_roles = local.eks_map_roles
 
   tags = module.this.tags
 }
