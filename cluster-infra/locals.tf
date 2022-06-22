@@ -8,31 +8,33 @@ locals {
 
   eks_map_roles = concat([
     {
-      rolearn  = data.aws_iam_role.administrator.arn
+      rolearn  = "arn:${local.partition_id}:ima::${local.account_id}:role/${var.sso_administrator_role_name}"
       username = "admin:{{SessionName}}"
-      groups   = ["system:masters"]
+      groups   = ["cluster-admin"]
     },
     {
-      rolearn  = data.aws_iam_role.poweruser.arn
-      username = "user:{{SessionName}}"
-      groups   = ["system:masters"]
-    }
+      rolearn  = "arn:${local.partition_id}:ima::${local.account_id}:role/${var.sso_poweruser_role_name}"
+      username = "admin:{{SessionName}}"
+      groups   = ["cluster-admin"]
+    },
+    {
+      rolearn  = "arn:${local.partition_id}:ima::${local.account_id}:role/${var.sso_readonly_role_name}"
+      username = "admin:{{SessionName}}"
+      groups   = ["system:public-info-viewer"]
+    },
     ],
     var.eks_map_roles
   )
-  eks_map_users = [
-    {
-      userarn  = "arn:${local.partition_id}:iam::${local.account_id}:root"
-      username = "user:{{SessionName}}"
-      groups   = ["system:masters"]
-    }
-  ]
+  eks_map_users    = []
   eks_map_accounts = []
 
   all_cidrs = [for cba in data.aws_vpc.shared.cidr_block_associations : cba.cidr_block]
 
-  log_kms_name  = "${local.cluster_name}-ekslogs"
-  log_kms_alias = "alias/${local.log_kms_name}-key"
+  log_kms_name     = "${local.cluster_name}-ekslogs"
+  log_kms_alias    = "alias/${local.log_kms_name}-key"
+  ebs_kms_name     = "${local.cluster_name}-ebs"
+  ebs_kms_alias    = "alias/${local.ebs_kms_name}-key"
+  cluster_role_arn = "aws:${local.partition_id}:iam::${local.account_id}:role/${local.cluster_name}-cluster-role"
 
   create_logs_bucket = var.enable_access_logs && var.create_access_logs_bucket
   logs_bucket_name = var.create_access_logs_bucket && length(var.access_logs_bucket) == 0 ? (

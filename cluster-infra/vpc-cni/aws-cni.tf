@@ -35,7 +35,7 @@ resource "null_resource" "patch_cni" {
   }
 
   provisioner "local-exec" {
-    command = "kubectl set env ds aws-node --server=$KUBESERVER --token=$KUBETOKEN --certificate-authority=$KUBECA -n kube-system AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG=true ENABLE_PREFIX_DELEGATION=true WARM_PREFIX_TARGET=1 ENI_CONFIG_LABEL_DEF=failure-domain.beta.kubernetes.io/zone"
+    command = "${path.module}/scripts/config-custom-network.sh"
 
     environment = {
       KUBECONFIG = local_file.config[0].filename
