@@ -81,7 +81,7 @@ module "eks_blueprints" {
       min_size        = 3
       max_unavailable = 1
       # Node Group compute configuration
-      ami_type             = "AL2_ARM_64"
+      ami_type             = "AL2_x86_64"
       release_version      = ""
       capacity_type        = "ON_DEMAND"
       instance_types       = ["m6a.large"]
