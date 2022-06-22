@@ -65,7 +65,9 @@ module "eks_blueprints" {
     }
   }
 
-  map_roles = local.eks_map_roles
+  map_accounts = local.eks_map_accounts
+  map_roles    = local.eks_map_roles
+  map_users    = local.eks_map_users
 
   tags = module.this.tags
 }

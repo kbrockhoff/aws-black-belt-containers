@@ -9,7 +9,7 @@ locals {
   eks_map_roles = concat([
     {
       rolearn  = data.aws_iam_role.administrator.arn
-      username = "user:{{SessionName}}"
+      username = "admin:{{SessionName}}"
       groups   = ["system:masters"]
     },
     {
@@ -20,6 +20,14 @@ locals {
     ],
     var.eks_map_roles
   )
+  eks_map_users = [
+    {
+      userarn  = "arn:${local.partition_id}:iam::${local.account_id}:root"
+      username = "user:{{SessionName}}"
+      groups   = ["system:masters"]
+    }
+  ]
+  eks_map_accounts = []
 
   all_cidrs = [for cba in data.aws_vpc.shared.cidr_block_associations : cba.cidr_block]
 
