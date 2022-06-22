@@ -58,10 +58,48 @@ module "eks_blueprints" {
 
   managed_node_groups = {
     alwayson = {
-      node_group_name      = "managed-ondemand"
-      instance_types       = ["m6a.xlarge"]
+      node_group_name = "always-on"
+      # Launch template configuration
+      create_launch_template = true
+      launch_template_os     = "amazonlinux2eks"
+      kubelet_extra_args     = "--node-labels=noderole=infrastructure --register-with-taints=test=true:NoSchedule --max-pods=24"
+      bootstrap_extra_args   = "--use-max-pods false --container-runtime containerd"
+      k8s_taints             = []
+      k8s_labels = {
+        Environment = "preprod"
+        Zone        = "dev"
+        Runtime     = "containerd"
+      }
+      public_ip         = false
+      enable_monitoring = true
+      eni_delete        = true
+      create_iam_role   = true
+      iam_role_arn      = ""
+      # Node Group scaling configuration
+      desired_size    = 3
+      max_size        = 3
+      min_size        = 3
+      max_unavailable = 1
+      # Node Group compute configuration
+      ami_type             = "AL2_ARM_64"
+      release_version      = ""
+      capacity_type        = "ON_DEMAND"
+      instance_types       = ["m6a.large"]
       subnet_ids           = data.aws_subnets.node.ids
       force_update_version = true
+
+      block_device_mappings = [
+        {
+          device_name           = "/dev/xvda"
+          volume_type           = "gp3"
+          volume_size           = 100
+          delete_on_termination = true
+          encrypted             = true
+          kms_key_id            = module.ebs_kms_key.key_arn
+          iops                  = 3000
+          throughput            = 125
+        }
+      ]
     }
   }
 
