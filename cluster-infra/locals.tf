@@ -34,7 +34,7 @@ locals {
   log_kms_alias    = "alias/${local.log_kms_name}-key"
   ebs_kms_name     = "${local.cluster_name}-ebs"
   ebs_kms_alias    = "alias/${local.ebs_kms_name}-key"
-  cluster_role_arn = "aws:${local.partition_id}:iam::${local.account_id}:role/${local.cluster_name}-cluster-role"
+  cluster_role_arn = "arn:${local.partition_id}:iam::${local.account_id}:role/${local.cluster_name}-cluster-role"
 
   create_logs_bucket = var.enable_access_logs && var.create_access_logs_bucket
   logs_bucket_name = var.create_access_logs_bucket && length(var.access_logs_bucket) == 0 ? (
