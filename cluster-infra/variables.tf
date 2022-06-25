@@ -46,30 +46,6 @@ variable "eks_write_kubeconfig" {
   default     = false
 }
 
-# ECR
-variable "ecr_repos" {
-  description = "List of docker repositories"
-  type        = list(any)
-  default     = ["demo"]
-}
-
-variable "ecr_repo_retention_count" {
-  description = "number of images to store in ECR"
-  default     = 32
-}
-
-variable "kubeproxy_version" {
-  description = "kube-proxy addon version to use."
-  type        = string
-  default     = "v1.22.6-eksbuild.1"
-}
-
-variable "coredns_version" {
-  description = "coredns addon version to use."
-  type        = string
-  default     = "v1.8.7-eksbuild.1"
-}
-
 variable "enable_access_logs" {
   description = "Set to false to disable access logging."
   type        = bool

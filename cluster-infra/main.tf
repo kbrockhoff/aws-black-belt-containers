@@ -19,7 +19,7 @@ module "eks_blueprints" {
   cluster_endpoint_private_access = true
 
   create_cloudwatch_log_group            = true
-  cluster_enabled_log_types              = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
+  cluster_enabled_log_types              = var.cluster_enabled_log_types
   cloudwatch_log_group_retention_in_days = 14
   cloudwatch_log_group_kms_key_id        = module.logs_kms_key.key_arn
 
@@ -60,21 +60,21 @@ module "eks_blueprints" {
     alwayson = {
       node_group_name = "always-on"
       # Launch template configuration
-      create_launch_template = true
-      launch_template_os     = "amazonlinux2eks"
-      kubelet_extra_args     = "--node-labels=noderole=infrastructure --register-with-taints=test=true:NoSchedule --max-pods=24"
-      bootstrap_extra_args   = "--use-max-pods false --container-runtime containerd"
-      k8s_taints             = []
-      k8s_labels = {
-        Environment = "preprod"
-        Zone        = "dev"
-        Runtime     = "containerd"
-      }
-      public_ip         = false
-      enable_monitoring = true
-      eni_delete        = true
-      create_iam_role   = true
-      iam_role_arn      = ""
+      #      create_launch_template = true
+      #      launch_template_os     = "amazonlinux2eks"
+      #      kubelet_extra_args     = "--node-labels=noderole=infrastructure --register-with-taints=test=true:NoSchedule --max-pods=24"
+      #      bootstrap_extra_args   = "--use-max-pods false --container-runtime containerd"
+      #      k8s_taints             = []
+      #      k8s_labels = {
+      #        Environment = "preprod"
+      #        Zone        = "dev"
+      #        Runtime     = "containerd"
+      #      }
+      #      public_ip         = false
+      #      enable_monitoring = true
+      #      eni_delete        = true
+      #      create_iam_role   = true
+      #      iam_role_arn      = ""
       # Node Group scaling configuration
       desired_size    = 3
       max_size        = 3

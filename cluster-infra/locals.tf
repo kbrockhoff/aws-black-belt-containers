@@ -10,7 +10,7 @@ locals {
     {
       rolearn  = "arn:${local.partition_id}:iam::${local.account_id}:role/${var.sso_administrator_role_name}"
       username = "admin:{{SessionName}}"
-      groups   = ["cluster-admin"]
+      groups   = ["system:masters"]
     },
     {
       rolearn  = "arn:${local.partition_id}:iam::${local.account_id}:role/${var.sso_poweruser_role_name}"
