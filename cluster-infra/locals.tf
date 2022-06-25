@@ -8,18 +8,18 @@ locals {
 
   eks_map_roles = concat([
     {
-      rolearn  = "arn:${local.partition_id}:ima::${local.account_id}:role/${var.sso_administrator_role_name}"
+      rolearn  = "arn:${local.partition_id}:iam::${local.account_id}:role/${var.sso_administrator_role_name}"
       username = "admin:{{SessionName}}"
       groups   = ["cluster-admin"]
     },
     {
-      rolearn  = "arn:${local.partition_id}:ima::${local.account_id}:role/${var.sso_poweruser_role_name}"
-      username = "admin:{{SessionName}}"
+      rolearn  = "arn:${local.partition_id}:iam::${local.account_id}:role/${var.sso_poweruser_role_name}"
+      username = "user:{{SessionName}}"
       groups   = ["cluster-admin"]
     },
     {
-      rolearn  = "arn:${local.partition_id}:ima::${local.account_id}:role/${var.sso_readonly_role_name}"
-      username = "admin:{{SessionName}}"
+      rolearn  = "arn:${local.partition_id}:iam::${local.account_id}:role/${var.sso_readonly_role_name}"
+      username = "user:{{SessionName}}"
       groups   = ["system:public-info-viewer"]
     },
     ],
