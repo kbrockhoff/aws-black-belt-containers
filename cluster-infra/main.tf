@@ -58,9 +58,7 @@ module "eks_blueprints" {
 
   managed_node_groups = {
     alwayson = {
-      node_group_name = "always-on"
-      create_iam_role = true
-      iam_role_arn    = null
+      node_group_name = "always on"
       # Node Group compute configuration
       ami_type             = "AL2_x86_64"
       release_version      = ""
