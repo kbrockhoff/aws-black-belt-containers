@@ -33,18 +33,6 @@ resource "aws_lb_target_group" "https" {
   })
 }
 
-resource "aws_lb_target_group" "http" {
-  name        = "${local.lb_name}-http"
-  port        = 80
-  protocol    = "HTTP"
-  target_type = "ip"
-  vpc_id      = data.aws_vpc.shared.id
-
-  tags = merge(module.this.tags, {
-    Name = "${local.lb_name}-http"
-  })
-}
-
 resource "aws_lb_listener" "https" {
   load_balancer_arn = aws_lb.eksingress.arn
   port              = "443"
@@ -68,8 +56,12 @@ resource "aws_lb_listener" "http" {
   port              = "80"
   protocol          = "HTTP"
   default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.http.arn
+    type = "redirect"
+    redirect {
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+    }
   }
 
   tags = merge(module.this.tags, {

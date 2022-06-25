@@ -59,9 +59,23 @@ module "eks_blueprints" {
   managed_node_groups = {
     alwayson = {
       node_group_name = "always-on"
+      create_iam_role = true
+      iam_role_arn    = null
+      # Node Group compute configuration
+      ami_type             = "AL2_x86_64"
+      release_version      = ""
+      capacity_type        = "ON_DEMAND"
+      instance_types       = ["m6a.large"]
+      subnet_ids           = data.aws_subnets.node.ids
+      force_update_version = true
+      # Node Group scaling configuration
+      desired_size    = 3
+      max_size        = 3
+      min_size        = 3
+      max_unavailable = 1
       # Launch template configuration
-      #      create_launch_template = true
-      #      launch_template_os     = "amazonlinux2eks"
+      create_launch_template = true
+      launch_template_os     = "amazonlinux2eks"
       #      kubelet_extra_args     = "--node-labels=noderole=infrastructure --register-with-taints=test=true:NoSchedule --max-pods=24"
       #      bootstrap_extra_args   = "--use-max-pods false --container-runtime containerd"
       #      k8s_taints             = []
@@ -70,24 +84,10 @@ module "eks_blueprints" {
       #        Zone        = "dev"
       #        Runtime     = "containerd"
       #      }
-      #      public_ip         = false
-      #      enable_monitoring = true
-      #      eni_delete        = true
-      #      create_iam_role   = true
-      #      iam_role_arn      = ""
-      # Node Group scaling configuration
-      desired_size    = 3
-      max_size        = 3
-      min_size        = 3
-      max_unavailable = 1
-      # Node Group compute configuration
-      ami_type             = "AL2_x86_64"
-      release_version      = ""
-      capacity_type        = "ON_DEMAND"
-      instance_types       = ["m6a.large"]
-      subnet_ids           = data.aws_subnets.node.ids
-      force_update_version = true
-
+      public_ip         = false
+      enable_monitoring = true
+      eni_delete        = true
+      # Root storage
       block_device_mappings = [
         {
           device_name           = "/dev/xvda"

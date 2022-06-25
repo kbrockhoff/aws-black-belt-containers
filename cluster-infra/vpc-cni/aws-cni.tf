@@ -38,10 +38,11 @@ resource "null_resource" "patch_cni" {
     command = "${path.module}/scripts/config-custom-network.sh"
 
     environment = {
-      KUBECONFIG = local_file.config[0].filename
-      KUBESERVER = data.aws_eks_cluster.cluster.endpoint
-      KUBETOKEN  = data.aws_eks_cluster_auth.cluster.token
-      KUBECA     = local_file.kube_ca[0].filename
+      KUBECONFIG  = local_file.config[0].filename
+      KUBESERVER  = data.aws_eks_cluster.cluster.endpoint
+      KUBETOKEN   = data.aws_eks_cluster_auth.cluster.token
+      KUBECA      = local_file.kube_ca[0].filename
+      CLUSTERNAME = var.cluster_name
     }
   }
 
