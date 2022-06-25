@@ -76,14 +76,14 @@ module "eks_blueprints" {
       # Launch template configuration
       create_launch_template = true
       launch_template_os     = "amazonlinux2eks"
-      #      kubelet_extra_args     = "--node-labels=noderole=infrastructure --register-with-taints=test=true:NoSchedule --max-pods=24"
-      #      bootstrap_extra_args   = "--use-max-pods false --container-runtime containerd"
-      #      k8s_taints             = []
-      #      k8s_labels = {
-      #        Environment = "preprod"
-      #        Zone        = "dev"
-      #        Runtime     = "containerd"
-      #      }
+      kubelet_extra_args     = "--node-labels=noderole=infrastructure --max-pods=29"
+      bootstrap_extra_args   = "--container-runtime containerd"
+      k8s_taints             = []
+      k8s_labels = {
+        Environment = "preprod"
+        Zone        = "dev"
+        Runtime     = "containerd"
+      }
       public_ip         = false
       enable_monitoring = true
       eni_delete        = true
