@@ -23,39 +23,6 @@ module "eks_blueprints" {
   cloudwatch_log_group_retention_in_days = 14
   cloudwatch_log_group_kms_key_id        = module.logs_kms_key.key_arn
 
-  node_security_group_additional_rules = {
-    # Extend node-to-node security group rules. Recommended and required for the Add-ons
-    ingress_self_all = {
-      description = "Node to node all ports/protocols"
-      protocol    = "-1"
-      from_port   = 0
-      to_port     = 0
-      type        = "ingress"
-      self        = true
-    }
-    # Recommended outbound traffic for Node groups
-    egress_all = {
-      description      = "Node all egress"
-      protocol         = "-1"
-      from_port        = 0
-      to_port          = 0
-      type             = "egress"
-      cidr_blocks      = ["0.0.0.0/0"]
-      ipv6_cidr_blocks = ["::/0"]
-    }
-    # Allows Control Plane Nodes to talk to Worker nodes on all ports. Added this to simplify the example and further avoid issues with Add-ons communication with Control plane.
-    # This can be restricted further to specific port based on the requirement for each Add-on e.g., metrics-server 4443, spark-operator 8080, karpenter 8443 etc.
-    # Change this according to your security requirements if needed
-    ingress_cluster_to_node_all_traffic = {
-      description                   = "Cluster API to Nodegroup all traffic"
-      protocol                      = "-1"
-      from_port                     = 0
-      to_port                       = 0
-      type                          = "ingress"
-      source_cluster_security_group = true
-    }
-  }
-
   managed_node_groups = {
     alwayson = {
       node_group_name = "always-on"
@@ -78,9 +45,7 @@ module "eks_blueprints" {
       bootstrap_extra_args   = "--container-runtime containerd"
       k8s_taints             = []
       k8s_labels = {
-        Environment = "preprod"
-        Zone        = "dev"
-        Runtime     = "containerd"
+        dbs-deployer = "Terraform"
       }
       public_ip         = false
       enable_monitoring = true
@@ -89,13 +54,11 @@ module "eks_blueprints" {
       block_device_mappings = [
         {
           device_name           = "/dev/xvda"
-          volume_type           = "gp3"
+          volume_type           = "gp2"
           volume_size           = 100
           delete_on_termination = true
           encrypted             = true
           kms_key_id            = module.ebs_kms_key.key_arn
-          iops                  = 3000
-          throughput            = 125
         }
       ]
     }
@@ -141,7 +104,7 @@ module "eks_blueprints_base_addons" {
 module "vpc_cni" {
   source = "./vpc-cni"
 
-  enabled                   = true
+  enabled                   = false
   cluster_name              = module.eks_blueprints.eks_cluster_id
   vpc_id                    = data.aws_vpc.shared.id
   vpccni_version            = data.aws_eks_addon_version.latest["vpc-cni"].version
