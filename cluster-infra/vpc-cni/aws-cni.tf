@@ -9,7 +9,7 @@ metadata:
 spec:
  subnet: ${each.key}
  securityGroups:
- - ${local.pod_security_group_id}
+ - ${var.pod_security_group_id}
 YAML
 }
 

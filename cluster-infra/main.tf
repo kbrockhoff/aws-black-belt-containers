@@ -25,26 +25,43 @@ module "eks_blueprints" {
 
   managed_node_groups = {
     alwayson = {
-      node_group_name = "always-on"
+      node_group_name = "alwayson"
+      create_iam_role = false
+      iam_role_arn    = aws_iam_role.managed_ng.arn
+      # Node Group compute configuration
+      instance_types = ["m6a.large"]
+      subnet_ids     = data.aws_subnets.node.ids
+      disk_size      = 100
+      # Node Group scaling configuration
+      min_size = 2
+      max_size = 2
+      update_config = [{
+        max_unavailable_percentage = 50
+      }]
+      public_ip         = false
+      enable_monitoring = true
+      eni_delete        = true
+    },
+    exspot = {
+      node_group_name = "exspot"
+      create_iam_role = false
+      iam_role_arn    = aws_iam_role.managed_ng.arn
       # Node Group compute configuration
       ami_type             = "AL2_x86_64"
       release_version      = ""
-      custom_ami_id        = data.aws_ssm_parameter.al2_ami.value
-      capacity_type        = "ON_DEMAND"
-      instance_types       = ["m6a.large"]
+      capacity_type        = "SPOT"
+      instance_types       = ["m5.large", "m4.large", "m6a.large", "m5a.large", "m5d.large"]
       subnet_ids           = data.aws_subnets.node.ids
       force_update_version = true
       # Node Group scaling configuration
-      desired_size    = 3
-      max_size        = 3
-      min_size        = 3
-      max_unavailable = 1
+      desired_size = 1
+      max_size     = 4
+      min_size     = 0
       # Launch template configuration
       create_launch_template = true
       launch_template_os     = "amazonlinux2eks"
-      kubelet_extra_args     = "--node-labels=noderole=infrastructure --max-pods=29"
-      bootstrap_extra_args   = "--b64-cluster-ca $B64_CLUSTER_CA --apiserver-endpoint $API_SERVER_URL --dns-cluster-ip $K8S_CLUSTER_DNS_IP --use-max-pods false --container-runtime containerd"
-      k8s_taints             = []
+      pre_userdata           = templatefile("${path.module}/templates/eks-nodes-userdata.sh", {})
+      k8s_taints             = [{ key = "spotInstance", value = "true", effect = "NO_SCHEDULE" }]
       k8s_labels = {
         dbs-deployer = "Terraform"
       }
@@ -58,8 +75,8 @@ module "eks_blueprints" {
           volume_type           = "gp2"
           volume_size           = 100
           delete_on_termination = true
-          encrypted             = true
-          kms_key_id            = module.ebs_kms_key.key_arn
+          encrypted             = false
+          #          kms_key_id            = module.ebs_kms_key.key_arn
         }
       ]
     }
@@ -111,7 +128,7 @@ module "vpc_cni" {
   vpccni_version            = data.aws_eks_addon_version.latest["vpc-cni"].version
   pod_subnets               = data.aws_subnets.pod.ids
   enable_custom_network     = true
-  pod_create_security_group = true
+  pod_security_group_id     = module.eks_blueprints.worker_node_security_group_id
   cluster_security_group_id = module.eks_blueprints.cluster_security_group_id
   cluster_oidc_issuer_url   = module.eks_blueprints.eks_oidc_issuer_url
   oidc_provider_arn         = module.eks_blueprints.eks_oidc_provider_arn
