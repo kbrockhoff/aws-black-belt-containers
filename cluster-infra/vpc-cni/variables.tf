@@ -32,22 +32,9 @@ variable "enable_custom_network" {
   default     = true
 }
 
-variable "pod_create_security_group" {
-  description = "When using vpc-cni whether to create a separate security group for the pods or attach the pod to `pod_security_group_id`."
-  type        = bool
-  default     = true
-}
-
 variable "pod_security_group_id" {
-  description = "If provided, all pods will be attached to this security group. If not given, a security group will be created with necessary ingress/egress to work with the EKS cluster."
+  description = "All pods will be attached to this security group."
   type        = string
-  default     = ""
-}
-
-variable "pods_egress_cidrs" {
-  description = "List of CIDR blocks that are permitted for workers egress traffic."
-  type        = list(string)
-  default     = ["0.0.0.0/0"]
 }
 
 variable "cluster_security_group_id" {
