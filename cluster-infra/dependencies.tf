@@ -44,6 +44,10 @@ data "aws_subnets" "lb" {
   }
 }
 
+data "aws_ssm_parameter" "al2_ami" {
+  name = "/aws/service/eks/optimized-ami/${var.eks_version}/amazon-linux-2/recommended/image_id"
+}
+
 data "aws_eks_addon_version" "latest" {
   for_each = toset(["vpc-cni", "coredns"])
 

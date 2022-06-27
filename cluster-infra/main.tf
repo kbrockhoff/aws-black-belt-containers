@@ -29,6 +29,7 @@ module "eks_blueprints" {
       # Node Group compute configuration
       ami_type             = "AL2_x86_64"
       release_version      = ""
+      custom_ami_id        = data.aws_ssm_parameter.al2_ami.value
       capacity_type        = "ON_DEMAND"
       instance_types       = ["m6a.large"]
       subnet_ids           = data.aws_subnets.node.ids
@@ -42,7 +43,7 @@ module "eks_blueprints" {
       create_launch_template = true
       launch_template_os     = "amazonlinux2eks"
       kubelet_extra_args     = "--node-labels=noderole=infrastructure --max-pods=29"
-      bootstrap_extra_args   = "--container-runtime containerd"
+      bootstrap_extra_args   = "--b64-cluster-ca $B64_CLUSTER_CA --apiserver-endpoint $API_SERVER_URL --dns-cluster-ip $K8S_CLUSTER_DNS_IP --use-max-pods false --container-runtime containerd"
       k8s_taints             = []
       k8s_labels = {
         dbs-deployer = "Terraform"
