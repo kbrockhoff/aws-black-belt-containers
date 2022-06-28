@@ -96,8 +96,6 @@ module "eks_blueprints_base_addons" {
     addon_version     = data.aws_eks_addon_version.latest["aws-ebs-csi-driver"].version
     resolve_conflicts = "OVERWRITE"
   }
-  enable_aws_load_balancer_controller      = true
-  aws_load_balancer_controller_helm_config = {}
 
   tags = module.this.tags
 
@@ -133,4 +131,19 @@ module "ebs_csi" {
   tags = module.this.tags
 
   depends_on = [module.eks_blueprints_base_addons]
+}
+
+module "eks_blueprints_enabling_addons" {
+  source = "github.com/aws-ia/terraform-aws-eks-blueprints//modules/kubernetes-addons?ref=v4.2.1"
+
+  eks_cluster_id               = module.eks_blueprints.eks_cluster_id
+  eks_worker_security_group_id = module.eks_blueprints.worker_node_security_group_id
+  auto_scaling_group_names     = module.eks_blueprints.self_managed_node_group_autoscaling_groups
+
+  enable_aws_load_balancer_controller      = true
+  aws_load_balancer_controller_helm_config = {}
+
+  tags = module.this.tags
+
+  depends_on = [module.vpc_cni, module.ebs_csi]
 }
