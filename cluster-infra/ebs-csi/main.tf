@@ -40,7 +40,7 @@ resource "null_resource" "patch_sc" {
   }
 
   provisioner "local-exec" {
-    command = "kubectl $KC patch storageclass $SC -p '{\"metadata\": {\"annotations\":{\"storageclass.kubernetes.io/is-default-class\":\"false\"}}}'"
+    command = "${path.module}/scripts/patch-original-sc.sh"
 
     environment = {
       KUBECONFIG  = local_file.config[0].filename
