@@ -1,5 +1,5 @@
 module "eks_blueprints" {
-  source = "github.com/aws-ia/terraform-aws-eks-blueprints?ref=v4.1.0"
+  source = "github.com/aws-ia/terraform-aws-eks-blueprints?ref=v4.2.1"
 
   create_eks                = true
   cluster_name              = local.cluster_name
@@ -31,53 +31,32 @@ module "eks_blueprints" {
       # Node Group compute configuration
       instance_types = ["m6a.large"]
       subnet_ids     = data.aws_subnets.node.ids
-      disk_size      = 100
       # Node Group scaling configuration
-      desired_size = 2
-      min_size     = 2
-      max_size     = 2
-      update_config = [{
-        max_unavailable_percentage = 50
-      }]
+      desired_size      = 3
+      min_size          = 3
+      max_size          = 3
+      max_unavailable   = 1
       public_ip         = false
       enable_monitoring = true
       eni_delete        = true
-    },
-    exspot = {
-      node_group_name = "exspot"
-      create_iam_role = false
-      iam_role_arn    = aws_iam_role.managed_ng.arn
-      # Node Group compute configuration
-      ami_type             = "AL2_x86_64"
-      release_version      = ""
-      capacity_type        = "SPOT"
-      instance_types       = ["m5.large", "m4.large", "m6a.large", "m5a.large", "m5d.large"]
-      subnet_ids           = data.aws_subnets.node.ids
-      force_update_version = true
-      # Node Group scaling configuration
-      desired_size = 1
-      max_size     = 4
-      min_size     = 0
       # Launch template configuration
       create_launch_template = true
       launch_template_os     = "amazonlinux2eks"
       pre_userdata           = templatefile("${path.module}/templates/eks-nodes-userdata.sh", {})
-      k8s_taints             = [{ key = "spotInstance", value = "true", effect = "NO_SCHEDULE" }]
+      k8s_taints             = []
       k8s_labels = {
         dbs-deployer = "Terraform"
       }
-      public_ip         = false
-      enable_monitoring = true
-      eni_delete        = true
       # Root storage
       block_device_mappings = [
         {
           device_name           = "/dev/xvda"
-          volume_type           = "gp2"
+          volume_type           = "gp3"
           volume_size           = 100
+          iops                  = 3000
+          throughput            = 125
           delete_on_termination = true
           encrypted             = false
-          #          kms_key_id            = module.ebs_kms_key.key_arn
         }
       ]
     }
@@ -91,7 +70,7 @@ module "eks_blueprints" {
 }
 
 module "eks_blueprints_base_addons" {
-  source = "github.com/aws-ia/terraform-aws-eks-blueprints//modules/kubernetes-addons?ref=v4.1.0"
+  source = "github.com/aws-ia/terraform-aws-eks-blueprints//modules/kubernetes-addons?ref=v4.2.1"
 
   eks_cluster_id               = module.eks_blueprints.eks_cluster_id
   eks_worker_security_group_id = module.eks_blueprints.worker_node_security_group_id
@@ -102,7 +81,6 @@ module "eks_blueprints_base_addons" {
     addon_version     = data.aws_eks_addon_version.latest["vpc-cni"].version
     resolve_conflicts = "OVERWRITE"
   }
-
   enable_amazon_eks_coredns = true
   amazon_eks_coredns_config = {
     addon_version     = data.aws_eks_addon_version.latest["coredns"].version
@@ -114,6 +92,12 @@ module "eks_blueprints_base_addons" {
     resolve_conflicts = "OVERWRITE"
   }
   enable_amazon_eks_aws_ebs_csi_driver = true
+  amazon_eks_aws_ebs_csi_driver_config = {
+    addon_version     = data.aws_eks_addon_version.latest["aws-ebs-csi-driver"].version
+    resolve_conflicts = "OVERWRITE"
+  }
+  enable_aws_load_balancer_controller      = true
+  aws_load_balancer_controller_helm_config = {}
 
   tags = module.this.tags
 
@@ -123,7 +107,7 @@ module "eks_blueprints_base_addons" {
 module "vpc_cni" {
   source = "./vpc-cni"
 
-  enabled                   = false
+  enabled                   = true
   cluster_name              = module.eks_blueprints.eks_cluster_id
   vpc_id                    = data.aws_vpc.shared.id
   vpccni_version            = data.aws_eks_addon_version.latest["vpc-cni"].version
@@ -133,6 +117,18 @@ module "vpc_cni" {
   cluster_security_group_id = module.eks_blueprints.cluster_security_group_id
   cluster_oidc_issuer_url   = module.eks_blueprints.eks_oidc_issuer_url
   oidc_provider_arn         = module.eks_blueprints.eks_oidc_provider_arn
+
+  tags = module.this.tags
+
+  depends_on = [module.eks_blueprints_base_addons]
+}
+
+module "ebs_csi" {
+  source = "./ebs-csi"
+
+  enabled        = true
+  cluster_name   = module.eks_blueprints.eks_cluster_id
+  ebs_kms_key_id = module.ebs_kms_key.key_arn
 
   tags = module.this.tags
 

@@ -45,7 +45,7 @@ data "aws_subnets" "lb" {
 }
 
 data "aws_eks_addon_version" "latest" {
-  for_each = toset(["vpc-cni", "coredns"])
+  for_each = toset(["vpc-cni", "coredns", "aws-ebs-csi-driver"])
 
   addon_name         = each.value
   kubernetes_version = module.eks_blueprints.eks_cluster_version
