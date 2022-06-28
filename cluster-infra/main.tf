@@ -33,8 +33,9 @@ module "eks_blueprints" {
       subnet_ids     = data.aws_subnets.node.ids
       disk_size      = 100
       # Node Group scaling configuration
-      min_size = 2
-      max_size = 2
+      desired_size = 2
+      min_size     = 2
+      max_size     = 2
       update_config = [{
         max_unavailable_percentage = 50
       }]
