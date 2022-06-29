@@ -1,3 +1,13 @@
+resource "aws_eks_addon" "vpccni" {
+  count = var.enabled ? 1 : 0
+
+  cluster_name             = var.cluster_name
+  addon_name               = "vpc-cni"
+  addon_version            = var.vpccni_version
+  service_account_role_arn = aws_iam_role.aws_node_irsa[0].arn
+  resolve_conflicts        = "OVERWRITE"
+}
+
 resource "kubectl_manifest" "eniconfig" {
   for_each = { for sn in data.aws_subnet.pod : sn.id => sn }
 
