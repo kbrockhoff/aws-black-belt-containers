@@ -69,6 +69,26 @@ module "eks_blueprints" {
   tags = module.this.tags
 }
 
+module "vpc_cni" {
+  source = "./vpc-cni"
+
+  enabled                   = true
+  region                    = var.region
+  cluster_name              = module.eks_blueprints.eks_cluster_id
+  vpc_id                    = data.aws_vpc.shared.id
+  vpccni_version            = data.aws_eks_addon_version.latest["vpc-cni"].version
+  pod_subnets               = data.aws_subnets.pod.ids
+  enable_custom_network     = true
+  pod_security_group_id     = module.eks_blueprints.worker_node_security_group_id
+  cluster_security_group_id = module.eks_blueprints.cluster_security_group_id
+  cluster_oidc_issuer_url   = module.eks_blueprints.eks_oidc_issuer_url
+  oidc_provider_arn         = module.eks_blueprints.eks_oidc_provider_arn
+
+  tags = module.this.tags
+
+  depends_on = [module.eks_blueprints]
+}
+
 module "eks_blueprints_base_addons" {
   source = "github.com/aws-ia/terraform-aws-eks-blueprints//modules/kubernetes-addons?ref=v4.2.1"
 
@@ -76,11 +96,6 @@ module "eks_blueprints_base_addons" {
   eks_worker_security_group_id = module.eks_blueprints.worker_node_security_group_id
   auto_scaling_group_names     = module.eks_blueprints.self_managed_node_group_autoscaling_groups
 
-  enable_amazon_eks_vpc_cni = true
-  amazon_eks_vpc_cni_config = {
-    addon_version     = data.aws_eks_addon_version.latest["vpc-cni"].version
-    resolve_conflicts = "OVERWRITE"
-  }
   enable_amazon_eks_coredns = true
   amazon_eks_coredns_config = {
     addon_version     = data.aws_eks_addon_version.latest["coredns"].version
@@ -103,27 +118,7 @@ module "eks_blueprints_base_addons" {
 
   tags = module.this.tags
 
-  depends_on = [module.eks_blueprints]
-}
-
-module "vpc_cni" {
-  source = "./vpc-cni"
-
-  enabled                   = true
-  region                    = var.region
-  cluster_name              = module.eks_blueprints.eks_cluster_id
-  vpc_id                    = data.aws_vpc.shared.id
-  vpccni_version            = data.aws_eks_addon_version.latest["vpc-cni"].version
-  pod_subnets               = data.aws_subnets.pod.ids
-  enable_custom_network     = true
-  pod_security_group_id     = module.eks_blueprints.worker_node_security_group_id
-  cluster_security_group_id = module.eks_blueprints.cluster_security_group_id
-  cluster_oidc_issuer_url   = module.eks_blueprints.eks_oidc_issuer_url
-  oidc_provider_arn         = module.eks_blueprints.eks_oidc_provider_arn
-
-  tags = module.this.tags
-
-  depends_on = [module.eks_blueprints_base_addons]
+  depends_on = [module.vpc_cni]
 }
 
 module "ebs_csi" {
