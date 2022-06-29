@@ -124,8 +124,8 @@ module "eks_blueprints_base_addons" {
     resolve_conflicts = "OVERWRITE"
   }
 
-  enable_metrics_server                    = true
-  metrics_server_helm_config               = {}
+  enable_metrics_server      = true
+  metrics_server_helm_config = {}
 
   enable_aws_for_fluentbit = true
   aws_for_fluentbit_helm_config = {
@@ -134,8 +134,8 @@ module "eks_blueprints_base_addons" {
     aws_for_fluentbit_cwlog_retention_in_days = var.log_retention_days
     create_namespace                          = true
     values = [templatefile("${path.module}/templates/aws-for-fluentbit-values.yaml", {
-      aws_region                          = var.region
-      log_group_name = local.loggroup_name
+      aws_region           = var.region
+      log_group_name       = local.loggroup_name
       service_account_name = "${local.cluster_name}-aws-for-fluent-bit-irsa"
     })]
     set = [
@@ -145,17 +145,17 @@ module "eks_blueprints_base_addons" {
       }
     ]
   }
-  aws_for_fluentbit_irsa_policies = []
-  aws_for_fluentbit_cw_log_group_name = local.loggroup_name
-  aws_for_fluentbit_cw_log_group_retention = var.log_retention_days
+  aws_for_fluentbit_irsa_policies            = []
+  aws_for_fluentbit_cw_log_group_name        = local.loggroup_name
+  aws_for_fluentbit_cw_log_group_retention   = var.log_retention_days
   aws_for_fluentbit_cw_log_group_kms_key_arn = module.logs_kms_key.key_arn
 
   enable_aws_load_balancer_controller      = true
   aws_load_balancer_controller_helm_config = {}
 
-  enable_cert_manager = true
-  cert_manager_helm_config = {}
-  cert_manager_irsa_policies = []
+  enable_cert_manager                      = true
+  cert_manager_helm_config                 = {}
+  cert_manager_irsa_policies               = []
   cert_manager_install_letsencrypt_issuers = false
 
   tags = module.this.tags

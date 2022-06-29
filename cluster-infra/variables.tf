@@ -96,6 +96,6 @@ variable "additional_acm_certs" {
 
 variable "log_retention_days" {
   description = "Number of days to retain CloudWatchLogs."
-  type = number
-  default = 14
+  type        = number
+  default     = 14
 }
