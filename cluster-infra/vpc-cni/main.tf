@@ -28,7 +28,7 @@ resource "local_file" "kube_ca" {
 }
 
 resource "null_resource" "patch_cni" {
-  count = local.cni_patch_needed ? 1 : 0
+  count = var.enabled && var.enable_custom_network ? 1 : 0
 
   triggers = {
     always_run = "${timestamp()}"
@@ -44,6 +44,7 @@ resource "null_resource" "patch_cni" {
       KUBECA      = local_file.kube_ca[0].filename
       CLUSTERNAME = var.cluster_name
       REGION      = var.region
+      CNI_STATUS  = local.customnetwork_status
     }
   }
 

@@ -12,8 +12,8 @@ CUR_VALUE=$(kubectl describe ds aws-node \
   grep AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG)
 
 if [[ $CUR_VALUE == *"false"* ]]; then
-  CUSTOM_ON="false"
+  CUSTOM_ON="off"
 else
-  CUSTOM_ON="true"
+  CUSTOM_ON="on"
 fi
 jq -n --arg con "$CUSTOM_ON" '{"customnetwork":$con}'
