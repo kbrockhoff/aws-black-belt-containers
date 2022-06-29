@@ -16,4 +16,5 @@ module "this" {
   availability    = "preemptable"
   deployer        = "Terraform"
   confidentiality = "confidential"
+  deletion_date   = "2022-08-05T18:00:00Z"
 }

@@ -96,6 +96,8 @@ module "eks_blueprints_base_addons" {
     addon_version     = data.aws_eks_addon_version.latest["aws-ebs-csi-driver"].version
     resolve_conflicts = "OVERWRITE"
   }
+  enable_metrics_server                    = true
+  metrics_server_helm_config               = {}
   enable_aws_load_balancer_controller      = true
   aws_load_balancer_controller_helm_config = {}
 
@@ -108,6 +110,7 @@ module "vpc_cni" {
   source = "./vpc-cni"
 
   enabled                   = true
+  region                    = var.region
   cluster_name              = module.eks_blueprints.eks_cluster_id
   vpc_id                    = data.aws_vpc.shared.id
   vpccni_version            = data.aws_eks_addon_version.latest["vpc-cni"].version

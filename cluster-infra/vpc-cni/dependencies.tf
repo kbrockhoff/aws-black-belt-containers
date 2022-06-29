@@ -15,3 +15,14 @@ data "aws_eks_cluster" "cluster" {
 data "aws_eks_cluster_auth" "cluster" {
   name = var.cluster_name
 }
+
+data "external" "cni_cfg" {
+  count = var.enabled ? 1 : 0
+
+  program = ["${path.module}/scripts/check-cni-config.sh"]
+  query = {
+    kubeserver = data.aws_eks_cluster.cluster.endpoint
+    kubetoken  = data.aws_eks_cluster_auth.cluster.token
+    kubeca     = local_file.kube_ca[0].filename
+  }
+}

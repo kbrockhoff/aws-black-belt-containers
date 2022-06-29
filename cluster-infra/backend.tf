@@ -41,6 +41,10 @@ terraform {
       source  = "hashicorp/time"
       version = "0.7.2"
     }
+    external = {
+      source  = "hashicorp/external"
+      version = "2.2.2"
+    }
   }
 
   backend "s3" {}

@@ -4,6 +4,12 @@ variable "enabled" {
   default     = true
 }
 
+variable "region" {
+  description = "Default infrastructure region"
+  type        = string
+  default     = "us-west-2"
+}
+
 variable "cluster_name" {
   description = "Name of the EKS cluster. Also used as a prefix in names of related resources."
   type        = string

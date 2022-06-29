@@ -28,7 +28,7 @@ resource "local_file" "kube_ca" {
 }
 
 resource "null_resource" "patch_cni" {
-  count = var.enabled && var.enable_custom_network ? 1 : 0
+  count = local.cni_patch_needed ? 1 : 0
 
   triggers = {
     always_run = "${timestamp()}"
@@ -43,6 +43,7 @@ resource "null_resource" "patch_cni" {
       KUBETOKEN   = data.aws_eks_cluster_auth.cluster.token
       KUBECA      = local_file.kube_ca[0].filename
       CLUSTERNAME = var.cluster_name
+      REGION      = var.region
     }
   }
 
