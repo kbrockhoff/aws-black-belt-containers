@@ -4,6 +4,7 @@ locals {
   partition_suffix = data.aws_partition.current.dns_suffix
   cluster_name     = module.this.name_prefix
   noderole_name    = "${local.cluster_name}-managednodes"
+  vpccnirole_name  = "${local.cluster_name}-aws-node-irsa"
   lb_name          = local.cluster_name
   waf_name         = "${local.cluster_name}-waf"
 

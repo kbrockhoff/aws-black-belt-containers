@@ -78,8 +78,9 @@ module "eks_blueprints_base_addons" {
 
   enable_amazon_eks_vpc_cni = true
   amazon_eks_vpc_cni_config = {
-    addon_version     = data.aws_eks_addon_version.latest["vpc-cni"].version
-    resolve_conflicts = "OVERWRITE"
+    addon_version            = data.aws_eks_addon_version.latest["vpc-cni"].version
+    resolve_conflicts        = "OVERWRITE"
+    service_account_role_arn = aws_iam_role.aws_node_irsa.arn
   }
   enable_amazon_eks_coredns = true
   amazon_eks_coredns_config = {
