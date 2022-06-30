@@ -165,7 +165,7 @@ module "eks_blueprints_base_addons" {
   enable_external_dns        = true
   external_dns_helm_config   = {}
   external_dns_irsa_policies = []
-  external_dns_private_zone  = false
+#  external_dns_private_zone  = false
 
   tags = module.this.tags
 
