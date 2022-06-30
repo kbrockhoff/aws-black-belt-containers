@@ -138,6 +138,7 @@ module "eks_blueprints_base_addons" {
       aws_region           = var.region
       log_group_name       = local.loggroup_name
       service_account_name = "${local.cluster_name}-aws-for-fluent-bit-irsa"
+      cluster_name         = local.cluster_name
     })]
     set = [
       {
