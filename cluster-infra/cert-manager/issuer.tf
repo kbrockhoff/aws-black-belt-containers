@@ -19,7 +19,7 @@ module "ca_issuer" {
 
   enabled                  = local.enabled_ca
   cluster_name             = var.cluster_name
-  bootstrap_ca             = local.bootstrap_ca
+  bootstrap_ca             = false
   provision_cluster_issuer = true
   namespace                = null
   ca_certificate           = var.ca_certificate
