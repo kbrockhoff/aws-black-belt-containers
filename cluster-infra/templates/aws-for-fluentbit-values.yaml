@@ -12,11 +12,11 @@ serviceAccount:
 
 cloudWatch:
   enabled: true
-  match: "*"
+  match: "application.*"
   region: ${aws_region}
   logGroupName: ${log_group_name}
   logStreamName:
-  logStreamPrefix: "fluentbit-"
+  logStreamPrefix: "$${HOST_NAME}-"
   logKey:
   logFormat:
   roleArn:
