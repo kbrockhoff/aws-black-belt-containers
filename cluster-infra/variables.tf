@@ -99,3 +99,9 @@ variable "log_retention_days" {
   type        = number
   default     = 14
 }
+
+variable "cert_admin_email" {
+  description = "If using the ACME Issuer, email address Let's Encrypt should contact the certificate administrator at."
+  type        = string
+  default     = "Kevin.Brockhoff@daugherty.com"
+}

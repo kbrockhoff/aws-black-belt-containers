@@ -139,6 +139,8 @@ module "eks_blueprints_base_addons" {
       log_group_name       = local.loggroup_name
       service_account_name = "${local.cluster_name}-aws-for-fluent-bit-irsa"
       cluster_name         = local.cluster_name
+      dataplane_log_group  = aws_cloudwatch_log_group.dataplane.name
+      host_log_group       = aws_cloudwatch_log_group.host.name
     })]
     set = [
       {
@@ -147,13 +149,13 @@ module "eks_blueprints_base_addons" {
       }
     ]
   }
-  aws_for_fluentbit_irsa_policies            = []
+  aws_for_fluentbit_irsa_policies = [
+    "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy",
+    "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
+  ]
   aws_for_fluentbit_cw_log_group_name        = local.loggroup_name
   aws_for_fluentbit_cw_log_group_retention   = var.log_retention_days
   aws_for_fluentbit_cw_log_group_kms_key_arn = module.logs_kms_key.key_arn
-
-  enable_opentelemetry_operator      = true
-  opentelemetry_operator_helm_config = {}
 
   enable_aws_load_balancer_controller      = true
   aws_load_balancer_controller_helm_config = {}
@@ -162,6 +164,29 @@ module "eks_blueprints_base_addons" {
   external_dns_helm_config   = {}
   external_dns_irsa_policies = []
   #  external_dns_private_zone  = false
+
+  tags = module.this.tags
+
+  depends_on = [module.vpc_cni]
+}
+
+module "certmgr" {
+  source = "./cert-manager"
+
+  install_crds             = true
+  cluster_name             = local.cluster_name
+  cert_manager_version     = "v1.8.2"
+  image_cainjector         = "quay.io/jetstack/cert-manager-cainjector:v1.8.2"
+  image_controller         = "quay.io/jetstack/cert-manager-controller:v1.8.2"
+  image_webhook            = "quay.io/jetstack/cert-manager-webhook:v1.8.2"
+  image_startup            = "quay.io/jetstack/cert-manager-ctl:v1.8.2"
+  issuer_type              = "SelfSigned"
+  cluster_oidc_issuer_url  = module.eks_blueprints.eks_oidc_issuer_url
+  oidc_provider_arn        = module.eks_blueprints.eks_oidc_provider_arn
+  cert_admin_email         = var.cert_admin_email
+  acme_server              = "https://acme-staging-v02.api.letsencrypt.org/directory"
+  acme_challenge_method    = "DNS01"
+  route53_hosted_zone_name = data.aws_route53_zone.public.name
 
   tags = module.this.tags
 
