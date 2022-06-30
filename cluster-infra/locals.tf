@@ -6,6 +6,7 @@ locals {
   noderole_name    = "${local.cluster_name}-managednodes"
   lb_name          = local.cluster_name
   waf_name         = "${local.cluster_name}-waf"
+  loggroup_name    = "/aws/containerinsights/${local.cluster_name}/application"
 
   eks_map_roles = concat([
     {
