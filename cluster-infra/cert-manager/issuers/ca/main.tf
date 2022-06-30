@@ -61,7 +61,7 @@ YAML
 }
 
 resource "kubectl_manifest" "signing_ca_secret" {
-  count = var.enabled && var.provision_cluster_issuer && var.ca_key != null ? 1 : 0
+  count = var.enabled && var.provision_cluster_issuer ? 1 : 0
 
   yaml_body = <<YAML
 apiVersion: v1
@@ -77,7 +77,7 @@ YAML
 }
 
 resource "kubectl_manifest" "namespace_signing_ca_secret" {
-  count = var.enabled && var.namespace != null && var.ca_key != null ? 1 : 0
+  count = var.enabled && var.namespace != null ? 1 : 0
 
   yaml_body = <<YAML
 apiVersion: v1
