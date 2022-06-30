@@ -187,7 +187,7 @@ module "eks_blueprints_base_addons" {
   ]
   aws_for_fluentbit_cw_log_group_name        = local.loggroup_name
   aws_for_fluentbit_cw_log_group_retention   = var.log_retention_days
-  aws_for_fluentbit_cw_log_group_kms_key_arn = module.logs_kms_key.key_arn
+  aws_for_fluentbit_cw_log_group_kms_key_arn = module.logs_kms_key.key_arn == null ? "" : module.logs_kms_key.key_arn
 
   enable_aws_load_balancer_controller      = true
   aws_load_balancer_controller_helm_config = {}
