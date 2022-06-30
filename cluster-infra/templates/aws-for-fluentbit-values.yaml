@@ -12,11 +12,11 @@ serviceAccount:
 
 cloudWatch:
   enabled: true
-  match: "*"
+  match: "application.*"
   region: ${aws_region}
   logGroupName: ${log_group_name}
   logStreamName:
-  logStreamPrefix: "fluentbit-"
+  logStreamPrefix: "$${HOST_NAME}-"
   logKey:
   logFormat:
   roleArn:
@@ -136,15 +136,9 @@ annotations: { }
 
 env:
   - name: AWS_REGION
-    valueFrom:
-      configMapKeyRef:
-        name: fluent-bit-cluster-info
-        key: logs.region
+    value: ${aws_region}
   - name: CLUSTER_NAME
-    valueFrom:
-      configMapKeyRef:
-        name: fluent-bit-cluster-info
-        key: cluster.name
+    value: ${cluster_name}
   - name: HOST_NAME
     valueFrom:
       fieldRef:
