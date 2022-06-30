@@ -157,11 +157,6 @@ module "eks_blueprints_base_addons" {
   enable_aws_load_balancer_controller      = true
   aws_load_balancer_controller_helm_config = {}
 
-  enable_cert_manager                      = true
-  cert_manager_helm_config                 = {}
-  cert_manager_irsa_policies               = []
-  cert_manager_install_letsencrypt_issuers = false
-
   enable_external_dns        = true
   external_dns_helm_config   = {}
   external_dns_irsa_policies = []
