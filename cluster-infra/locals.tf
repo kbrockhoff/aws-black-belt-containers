@@ -60,4 +60,6 @@ locals {
   zone_id             = data.aws_route53_zone.public.zone_id
   acm_certificate_arn = var.create_acm_certificate ? aws_acm_certificate.ingress[0].arn : var.acm_certificate_arn
 
+  tls_crt = var.tls_crt_filename == null ? null : base64encode(file("${path.module}/${var.tls_crt_filename}"))
+  tls_key = var.tls_key_filename == null ? null : base64encode(file("${path.module}/${var.tls_key_filename}"))
 }

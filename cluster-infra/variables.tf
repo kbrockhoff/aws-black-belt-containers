@@ -100,6 +100,18 @@ variable "log_retention_days" {
   default     = 14
 }
 
+variable "tls_crt_filename" {
+  description = "Path to the file containing the certificate chain for the CA signing certificate to use."
+  type        = string
+  default     = null
+}
+
+variable "tls_key_filename" {
+  description = "Path to the file containing the private key for the CA signing certificate to use."
+  type        = string
+  default     = null
+}
+
 variable "cert_admin_email" {
   description = "If using the ACME Issuer, email address Let's Encrypt should contact the certificate administrator at."
   type        = string
