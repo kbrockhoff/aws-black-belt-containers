@@ -2,7 +2,7 @@ global:
   ## Override the deployment namespace
   namespaceOverride: logging
 
-imagePullSecrets: []
+imagePullSecrets: [ ]
 nameOverride: ""
 fullnameOverride: ""
 
@@ -22,7 +22,7 @@ cloudWatch:
   roleArn:
   autoCreateGroup: true
   endpoint:
-  credentialsEndpoint:  {}
+  credentialsEndpoint: { }
 
 firehose:
   enabled: false
@@ -39,50 +39,84 @@ elasticsearch:
 service:
   parsersFiles:
     - /fluent-bit/parsers/parsers.conf
-  # extraParsers: |
-  #   [PARSER]
-  #       Name   logfmt
-  #       Format logfmt
+  extraParsers: |
+    [PARSER]
+        Name                syslog
+        Format              regex
+        Regex               ^(?<time>[^ ]* {1,2}[^ ]* [^ ]*) (?<host>[^ ]*) (?<ident>[a-zA-Z0-9_\/\.\-]*)(?:\[(?<pid>[0-9]+)\])?(?:[^\:]*\:)? *(?<message>.*)$
+        Time_Key            time
+        Time_Format         %b %d %H:%M:%S
+    
+    [PARSER]
+        Name                container_firstline
+        Format              regex
+        Regex               (?<log>(?<="log":")\S(?!\.).*?)(?<!\\)".*(?<stream>(?<="stream":").*?)".*(?<time>\d{4}-\d{1,2}-\d{1,2}T\d{2}:\d{2}:\d{2}\.\w*).*(?=})
+        Time_Key            time
+        Time_Format         %Y-%m-%dT%H:%M:%S.%LZ
+    
+    [PARSER]
+        Name                cwagent_firstline
+        Format              regex
+        Regex               (?<log>(?<="log":")\d{4}[\/-]\d{1,2}[\/-]\d{1,2}[ T]\d{2}:\d{2}:\d{2}(?!\.).*?)(?<!\\)".*(?<stream>(?<="stream":").*?)".*(?<time>\d{4}-\d{1,2}-\d{1,2}T\d{2}:\d{2}:\d{2}\.\w*).*(?=})
+        Time_Key            time
+        Time_Format         %Y-%m-%dT%H:%M:%S.%LZ
+    
+    [PARSER]
+        Name                vpccni
+        Format              json
+        Time_Key            ts
+        Time_Format         %Y-%m-%dT%H:%M:%S.%LZ
+
 
 input:
-  tag: "kube.*"
+  name: "tail"
+  tag: "application.*"
+  excludePath: /var/log/containers/aws-for-fluent-bit*, /var/log/containers/aws-node*, /var/log/containers/kube-proxy*
   path: "/var/log/containers/*.log"
-  db: "/var/log/flb_kube.db"
-  parser: docker
+  db: "/var/log/flb_container.db"
   dockerMode: "On"
-  memBufLimit: 5MB
+  dockerModeFlush: 5
+  dockerModeParser: container_firstline
+  parser: docker
+  memBufLimit: 50MB
   skipLongLines: "On"
   refreshInterval: 10
+  rotateWait: 30
+  readFromHead: $${READ_FROM_HEAD}
 
- extraInputs: |
-   [INPUT]
-       Name         winlog
-       Channels     Setup,Windows PowerShell
-       Interval_Sec 1
-       DB           winlog.sqlite
+extraInputs: |
+  [INPUT]
+      Name                tail
+      Tag                 application.*
+      Path                /var/log/containers/aws-for-fluent-bit*
+      Parser              docker
+      DB                  /var/log/flb_log.db
+      Mem_Buf_Limit       5MB
+      Skip_Long_Lines     On
+      Refresh_Interval    10
+      Read_from_Head      $${READ_FROM_HEAD}
 
 
 filter:
-  match: "kube.*"
+  name: kubernetes
+  match: "application.*"
   kubeURL: "https://kubernetes.default.svc.cluster.local:443"
+  kubeTagPrefix: application.var.log.containers.
   mergeLog: "On"
-  mergeLogKey: "data"
+  mergeLogKey: "log_processed"
   keepLog: "On"
   k8sLoggingParser: "On"
-  k8sLoggingExclude: "On"
+  k8sLoggingExclude: "Off"
+  labels: "Off"
+  annotations: "Off"
 
-# extraFilters: |
-#   [FILTER]
-#       Name   grep
-#       Match  *
-#       Exclude log lvl=debug*
 
 resources:
   limits:
     memory: 250Mi
   requests:
     cpu: 50m
-    memory: 50Mi
+    memory: 100Mi
 
 ## Assign a PriorityClassName to pods if set
 # priorityClassName: system-node-critical
@@ -93,14 +127,28 @@ updateStrategy:
 nodeSelector:
   kubernetes.io/os: linux
 
-tolerations: []
+tolerations: [ ]
 
-affinity: {}
+affinity: { }
 
-annotations: {}
+annotations: { }
 # iam.amazonaws.com/role: arn:aws:iam::123456789012:role/role-for-fluent-bit
 
-env: []
+env:
+  - name: AWS_REGION
+    valueFrom:
+      configMapKeyRef:
+        name: fluent-bit-cluster-info
+        key: logs.region
+  - name: CLUSTER_NAME
+    valueFrom:
+      configMapKeyRef:
+        name: fluent-bit-cluster-info
+        key: cluster.name
+  - name: HOST_NAME
+    valueFrom:
+      fieldRef:
+        fieldPath: spec.nodeName
 
 volumes:
   - name: varlog

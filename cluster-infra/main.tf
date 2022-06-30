@@ -105,6 +105,7 @@ module "eks_blueprints_base_addons" {
   source = "github.com/aws-ia/terraform-aws-eks-blueprints//modules/kubernetes-addons?ref=v4.2.1"
 
   eks_cluster_id               = module.eks_blueprints.eks_cluster_id
+  eks_cluster_domain           = data.aws_route53_zone.public.name
   eks_worker_security_group_id = module.eks_blueprints.worker_node_security_group_id
   auto_scaling_group_names     = module.eks_blueprints.self_managed_node_group_autoscaling_groups
 
@@ -150,6 +151,9 @@ module "eks_blueprints_base_addons" {
   aws_for_fluentbit_cw_log_group_retention   = var.log_retention_days
   aws_for_fluentbit_cw_log_group_kms_key_arn = module.logs_kms_key.key_arn
 
+  enable_opentelemetry_operator      = true
+  opentelemetry_operator_helm_config = {}
+
   enable_aws_load_balancer_controller      = true
   aws_load_balancer_controller_helm_config = {}
 
@@ -157,6 +161,11 @@ module "eks_blueprints_base_addons" {
   cert_manager_helm_config                 = {}
   cert_manager_irsa_policies               = []
   cert_manager_install_letsencrypt_issuers = false
+
+  enable_external_dns        = true
+  external_dns_helm_config   = {}
+  external_dns_irsa_policies = []
+  external_dns_private_zone  = false
 
   tags = module.this.tags
 
