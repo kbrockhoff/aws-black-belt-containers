@@ -199,7 +199,7 @@ module "eks_blueprints_base_addons" {
 
   tags = module.this.tags
 
-  depends_on = [module.eks_blueprints, module.vpc_cni]
+  depends_on = [module.eks_blueprints, module.vpc_cni, module.logs_kms_key]
 }
 
 module "certmgr" {
