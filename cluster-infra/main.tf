@@ -8,6 +8,38 @@ module "eks_blueprints" {
   private_subnet_ids        = data.aws_subnets.node.ids
   cluster_ip_family         = "ipv4"
   cluster_service_ipv4_cidr = "172.20.0.0/16"
+  node_security_group_additional_rules = {
+    # Extend node-to-node security group rules. Recommended and required for the Add-ons
+    ingress_self_all = {
+      description = "Node to node all ports/protocols"
+      protocol    = "-1"
+      from_port   = 0
+      to_port     = 0
+      type        = "ingress"
+      self        = true
+    }
+    # Recommended outbound traffic for Node groups
+    egress_all = {
+      description      = "Node all egress"
+      protocol         = "-1"
+      from_port        = 0
+      to_port          = 0
+      type             = "egress"
+      cidr_blocks      = ["0.0.0.0/0"]
+      ipv6_cidr_blocks = ["::/0"]
+    }
+    # Allows Control Plane Nodes to talk to Worker nodes on all ports. Added this to simplify the example and further avoid issues with Add-ons communication with Control plane.
+    # This can be restricted further to specific port based on the requirement for each Add-on e.g., metrics-server 4443, spark-operator 8080, karpenter 8443 etc.
+    # Change this according to your security requirements if needed
+    ingress_cluster_to_node_all_traffic = {
+      description                   = "Cluster API to Nodegroup all traffic"
+      protocol                      = "-1"
+      from_port                     = 0
+      to_port                       = 0
+      type                          = "ingress"
+      source_cluster_security_group = true
+    }
+  }
 
   cluster_kms_key_deletion_window_in_days = 14
   cluster_kms_key_additional_admin_arns = [
@@ -155,7 +187,7 @@ module "eks_blueprints_base_addons" {
   ]
   aws_for_fluentbit_cw_log_group_name        = local.loggroup_name
   aws_for_fluentbit_cw_log_group_retention   = var.log_retention_days
-  aws_for_fluentbit_cw_log_group_kms_key_arn = module.logs_kms_key.key_arn
+  aws_for_fluentbit_cw_log_group_kms_key_arn = null # needs bugfix in blueprints
 
   enable_aws_load_balancer_controller      = true
   aws_load_balancer_controller_helm_config = {}
@@ -167,7 +199,7 @@ module "eks_blueprints_base_addons" {
 
   tags = module.this.tags
 
-  depends_on = [module.vpc_cni]
+  depends_on = [module.eks_blueprints, module.vpc_cni, module.logs_kms_key]
 }
 
 module "certmgr" {

@@ -1,4 +1,5 @@
 locals {
+  name_iam            = "${var.cluster_name}-cert-manager-irsa"
   name_certmgr        = "${var.system_name}-cert-manager"
   name_cainjector     = "${var.system_name}-cert-manager-cainjector"
   name_webhook        = "${var.system_name}-cert-manager-webhook"
@@ -74,7 +75,7 @@ locals {
   enabled_dns01    = local.enabled_acme && var.acme_challenge_method == "DNS01"
 
   irsa_annotations = {
-    "eks.amazonaws.com/role-arn" = local.enabled_dns01 ? aws_iam_role.acme_issuer[0].arn : ""
+    "eks.amazonaws.com/role-arn" = local.enabled_dns01 ? aws_iam_role.certmgr[0].arn : ""
   }
   certmgr_sa_annotations = local.enabled_dns01 ? local.irsa_annotations : {}
 

@@ -28,7 +28,7 @@ resource "kubernetes_service_account" "cert_manager" {
   }
   automount_service_account_token = true
 
-  depends_on = [aws_iam_role.acme_issuer]
+  depends_on = [aws_iam_role.certmgr]
 }
 
 resource "kubernetes_service_account" "webhook" {
