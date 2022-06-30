@@ -60,4 +60,44 @@ locals {
   zone_id             = data.aws_route53_zone.public.zone_id
   acm_certificate_arn = var.create_acm_certificate ? aws_acm_certificate.ingress[0].arn : var.acm_certificate_arn
 
+  generate_ca_cert = var.tls_key_filename == null
+  tls_crt = local.generate_ca_cert ? (
+    base64encode(tls_self_signed_cert.certmgr_ca[0].cert_pem)
+    ) : (
+    base64encode(file("${path.module}/${var.tls_crt_filename}"))
+  )
+  tls_key = local.generate_ca_cert ? (
+    base64encode(tls_self_signed_cert.certmgr_ca[0].private_key_pem)
+    ) : (
+    base64encode(file("${path.module}/${var.tls_key_filename}"))
+  )
+}
+
+resource "tls_private_key" "certmgr_ca" {
+  count = local.generate_ca_cert ? 1 : 0
+
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
+resource "tls_self_signed_cert" "certmgr_ca" {
+  count = local.generate_ca_cert ? 1 : 0
+
+  private_key_pem = tls_private_key.certmgr_ca[0].private_key_pem
+  allowed_uses = [
+    "cert_signing",
+    "crl_signing",
+    "digital_signature",
+  ]
+  validity_period_hours = 87600
+  is_ca_certificate     = true
+  subject {
+    common_name         = "${local.cluster_name} CA"
+    country             = "US"
+    locality            = "St Louis"
+    organization        = "Daugherty Systems, Inc."
+    organizational_unit = "Daugherty Labs"
+    postal_code         = "63141"
+    province            = "MO"
+  }
 }

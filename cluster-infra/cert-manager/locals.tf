@@ -1,4 +1,5 @@
 locals {
+  partition_id        = data.aws_partition.current.partition
   name_iam            = "${var.cluster_name}-cert-manager-irsa"
   name_certmgr        = "${var.system_name}-cert-manager"
   name_cainjector     = "${var.system_name}-cert-manager-cainjector"
@@ -74,9 +75,8 @@ locals {
   enabled_cflare   = var.enabled && var.issuer_type == "Cloudflare"
   enabled_dns01    = local.enabled_acme && var.acme_challenge_method == "DNS01"
 
-  irsa_annotations = {
+  certmgr_sa_annotations = {
     "eks.amazonaws.com/role-arn" = local.enabled_dns01 ? aws_iam_role.certmgr[0].arn : ""
   }
-  certmgr_sa_annotations = local.enabled_dns01 ? local.irsa_annotations : {}
 
 }

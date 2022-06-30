@@ -85,7 +85,6 @@ input:
     Docker_Mode_Flush   5
     Docker_Mode_Parser  container_firstline
     Rotate_Wait         30
-    storage.type        filesystem
     Read_from_Head      $${READ_FROM_HEAD}
 
 additionalInputs: |
@@ -121,7 +120,6 @@ additionalInputs: |
       Skip_Long_Lines     On
       Refresh_Interval    10
       Rotate_Wait         30
-      storage.type        filesystem
       Read_from_Head      $${READ_FROM_HEAD}
   
   [INPUT]
@@ -137,7 +135,6 @@ additionalInputs: |
       Skip_Long_Lines     On
       Refresh_Interval    10
       Rotate_Wait         30
-      storage.type        filesystem
       Read_from_Head      $${READ_FROM_HEAD}
 
   [INPUT]

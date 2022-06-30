@@ -31,28 +31,25 @@ data "aws_iam_policy_document" "route53" {
   count = var.enabled ? 1 : 0
 
   statement {
-    sid    = "Route53Updates"
     effect = "Allow"
     actions = [
       "route53:GetChange",
     ]
     resources = [
-      "arn:aws:route53:::change/*",
+      "arn:${local.partition_id}:route53:::change/*",
     ]
   }
   statement {
-    sid    = "Route53Updates"
     effect = "Allow"
     actions = [
       "route53:ChangeResourceRecordSets",
       "route53:ListResourceRecordSets",
     ]
     resources = [
-      "arn:aws:route53:::hostedzone/*"
+      data.aws_route53_zone.public[0].arn,
     ]
   }
   statement {
-    sid    = "Route53Reads"
     effect = "Allow"
     actions = [
       "route53:ListHostedZonesByName",
