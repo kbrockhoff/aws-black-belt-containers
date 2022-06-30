@@ -212,7 +212,7 @@ module "certmgr" {
   image_controller         = "quay.io/jetstack/cert-manager-controller:v1.8.2"
   image_webhook            = "quay.io/jetstack/cert-manager-webhook:v1.8.2"
   image_startup            = "quay.io/jetstack/cert-manager-ctl:v1.8.2"
-  issuer_type              = "SelfSigned"
+  issuer_type              = "CA"
   cluster_oidc_issuer_url  = module.eks_blueprints.eks_oidc_issuer_url
   oidc_provider_arn        = module.eks_blueprints.eks_oidc_provider_arn
   cert_admin_email         = var.cert_admin_email
