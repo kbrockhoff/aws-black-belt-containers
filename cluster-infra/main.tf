@@ -202,27 +202,3 @@ module "eks_blueprints_base_addons" {
   depends_on = [module.eks_blueprints, module.vpc_cni, module.logs_kms_key]
 }
 
-module "certmgr" {
-  source = "./cert-manager"
-
-  install_crds             = false
-  cluster_name             = local.cluster_name
-  cert_manager_version     = "v1.8.2"
-  image_cainjector         = "quay.io/jetstack/cert-manager-cainjector:v1.8.2"
-  image_controller         = "quay.io/jetstack/cert-manager-controller:v1.8.2"
-  image_webhook            = "quay.io/jetstack/cert-manager-webhook:v1.8.2"
-  image_startup            = "quay.io/jetstack/cert-manager-ctl:v1.8.2"
-  issuer_type              = "CA"
-  ca_certificate           = local.tls_crt
-  ca_key                   = local.tls_key
-  cluster_oidc_issuer_url  = module.eks_blueprints.eks_oidc_issuer_url
-  oidc_provider_arn        = module.eks_blueprints.eks_oidc_provider_arn
-  cert_admin_email         = var.cert_admin_email
-  acme_server              = "https://acme-staging-v02.api.letsencrypt.org/directory"
-  acme_challenge_method    = "DNS01"
-  route53_hosted_zone_name = data.aws_route53_zone.public.name
-
-  tags = module.this.tags
-
-  depends_on = [module.vpc_cni]
-}
