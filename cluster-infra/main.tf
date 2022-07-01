@@ -205,7 +205,7 @@ module "eks_blueprints_base_addons" {
 module "certmgr" {
   source = "./cert-manager"
 
-  install_crds             = true
+  install_crds             = false
   cluster_name             = local.cluster_name
   cert_manager_version     = "v1.8.2"
   image_cainjector         = "quay.io/jetstack/cert-manager-cainjector:v1.8.2"

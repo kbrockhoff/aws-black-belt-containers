@@ -61,6 +61,17 @@ variable "oidc_provider_arn" {
   default     = ""
 }
 
+variable "vpc_plugin_log_level" {
+  description = "The logging level for the VPC CNI plugin."
+  type        = string
+  default     = "DEBUG"
+
+  validation {
+    condition     = contains(["DEBUG", "INFO", "WARN", "ERROR", "FATAL"], var.vpc_plugin_log_level)
+    error_message = "Allowed values: DEBUG, INFO, WARN, ERROR, FATAL."
+  }
+}
+
 variable "tags" {
   description = "Resource tags defined in the parent module."
   type        = map(string)
