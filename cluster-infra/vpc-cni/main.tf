@@ -55,6 +55,7 @@ resource "null_resource" "patch_cni" {
       CLUSTERNAME = var.cluster_name
       REGION      = var.region
       CNI_STATUS  = local.customnetwork_status
+      LOGLEVEL    = var.vpc_plugin_log_level
     }
   }
 

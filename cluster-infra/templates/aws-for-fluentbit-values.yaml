@@ -11,35 +11,31 @@ serviceAccount:
   name: ${service_account_name}
 
 cloudWatch:
-  enabled: true
-  match: "application.*"
+  enabled: false
   region: ${aws_region}
-  logGroupName: ${log_group_name}
-  logStreamName:
-  logStreamPrefix: "$${HOST_NAME}-"
-  logKey:
-  logFormat:
-  roleArn:
-  autoCreateGroup: true
-  endpoint:
-  credentialsEndpoint: { }
-  extraOutputs: |
-    extra_user_agent    container-insights
-
-
 firehose:
   enabled: false
   region: ${aws_region}
-
 kinesis:
   enabled: false
   region: ${aws_region}
-
 elasticsearch:
   enabled: false
   region: ${aws_region}
 
 service:
+  extraService: |
+    Flush                     5
+    Log_Level                 info
+    Daemon                    off
+    HTTP_Server               $${HTTP_SERVER}
+    HTTP_Listen               0.0.0.0
+    HTTP_Port                 $${HTTP_PORT}
+    storage.path              /var/lib/fluentbit/state/flb-storage/
+    storage.sync              normal
+    storage.checksum          off
+    storage.backlog.mem_limit 5M
+
   parsersFiles:
     - /fluent-bit/parsers/parsers.conf
   extraParsers: |
@@ -51,20 +47,6 @@ service:
         Time_Format         %b %d %H:%M:%S
     
     [PARSER]
-        Name                container_firstline
-        Format              regex
-        Regex               (?<log>(?<="log":")\S(?!\.).*?)(?<!\\)".*(?<stream>(?<="stream":").*?)".*(?<time>\d{4}-\d{1,2}-\d{1,2}T\d{2}:\d{2}:\d{2}\.\w*).*(?=})
-        Time_Key            time
-        Time_Format         %Y-%m-%dT%H:%M:%S.%LZ
-    
-    [PARSER]
-        Name                cwagent_firstline
-        Format              regex
-        Regex               (?<log>(?<="log":")\d{4}[\/-]\d{1,2}[\/-]\d{1,2}[ T]\d{2}:\d{2}:\d{2}(?!\.).*?)(?<!\\)".*(?<stream>(?<="stream":").*?)".*(?<time>\d{4}-\d{1,2}-\d{1,2}T\d{2}:\d{2}:\d{2}\.\w*).*(?=})
-        Time_Key            time
-        Time_Format         %Y-%m-%dT%H:%M:%S.%LZ
-    
-    [PARSER]
         Name                vpccni
         Format              json
         Time_Key            ts
@@ -74,7 +56,7 @@ service:
 input:
   tag: "application.*"
   path: "/var/log/containers/*.log"
-  db: "/var/log/flb_container.db"
+  db: "/var/lib/fluentbit/state/flb_container.db"
   parser: docker
   dockerMode: "On"
   memBufLimit: 50MB
@@ -83,8 +65,8 @@ input:
   extraInputs: |
     Exclude_Path        /var/log/containers/aws-for-fluent-bit*, /var/log/containers/aws-node*, /var/log/containers/kube-proxy*
     Docker_Mode_Flush   5
-    Docker_Mode_Parser  container_firstline
     Rotate_Wait         30
+    storage.type        filesystem
     Read_from_Head      $${READ_FROM_HEAD}
 
 additionalInputs: |
@@ -93,7 +75,7 @@ additionalInputs: |
       Tag                 application.*
       Path                /var/log/containers/aws-for-fluent-bit*
       Parser              docker
-      DB                  /var/log/flb_log.db
+      DB                  /var/lib/fluentbit/state/flb_log.db
       Mem_Buf_Limit       5MB
       Skip_Long_Lines     On
       Refresh_Interval    10
@@ -115,11 +97,12 @@ additionalInputs: |
       Docker_Mode         On
       Docker_Mode_Flush   5
       Parser              docker
-      DB                  /var/log/flb_dataplane_tail.db
+      DB                  /var/lib/fluentbit/state/flb_dataplane_tail.db
       Mem_Buf_Limit       50MB
       Skip_Long_Lines     On
       Refresh_Interval    10
       Rotate_Wait         30
+      storage.type        filesystem
       Read_from_Head      $${READ_FROM_HEAD}
   
   [INPUT]
@@ -128,13 +111,13 @@ additionalInputs: |
       Path                /var/log/aws-routed-eni/ipamd*, /var/log/aws-routed-eni/plugin*
       Docker_Mode         On
       Docker_Mode_Flush   5
-      Docker_Mode_Parser  container_firstline
       Parser              vpccni
-      DB                  /var/log/flb_dataplane_tail.db
+      DB                  /var/lib/fluentbit/state/flb_dataplane_tail.db
       Mem_Buf_Limit       50MB
       Skip_Long_Lines     On
       Refresh_Interval    10
       Rotate_Wait         30
+      storage.type        filesystem 
       Read_from_Head      $${READ_FROM_HEAD}
 
   [INPUT]
@@ -142,7 +125,7 @@ additionalInputs: |
       Tag                 host.dmesg
       Path                /var/log/dmesg
       Parser              syslog
-      DB                  /var/log/flb_dmesg.db
+      DB                  /var/lib/fluentbit/state/flb_dmesg.db
       Mem_Buf_Limit       5MB
       Skip_Long_Lines     On
       Refresh_Interval    10
@@ -153,7 +136,7 @@ additionalInputs: |
       Tag                 host.messages
       Path                /var/log/messages
       Parser              syslog
-      DB                  /var/log/flb_messages.db
+      DB                  /var/lib/fluentbit/state/flb_messages.db
       Mem_Buf_Limit       5MB
       Skip_Long_Lines     On
       Refresh_Interval    10
@@ -164,7 +147,7 @@ additionalInputs: |
       Tag                 host.secure
       Path                /var/log/secure
       Parser              syslog
-      DB                  /var/log/flb_secure.db
+      DB                  /var/lib/fluentbit/state/flb_secure.db
       Mem_Buf_Limit       5MB
       Skip_Long_Lines     On
       Refresh_Interval    10
@@ -206,7 +189,16 @@ additionalFilters: |
 
 additionalOutputs: |
   [OUTPUT]
-      Name                cloudwatch
+      Name                cloudwatch_logs
+      Match               application.*
+      region              ${aws_region}
+      log_group_name      ${log_group_name}
+      log_stream_prefix   $${HOST_NAME}-
+      auto_create_group   true
+      extra_user_agent    container-insights
+  
+  [OUTPUT]
+      Name                cloudwatch_logs
       Match               dataplane.*
       region              ${aws_region}
       log_group_name      ${dataplane_log_group}
@@ -260,12 +252,28 @@ env:
     value: "Off"
   - name: READ_FROM_TAIL
     value: "On"
+  - name: HTTP_SERVER
+    value: "On"
+  - name: HTTP_PORT
+    value: "2020"
 
 volumes:
   - name: varlog
     hostPath:
       path: /var/log
+  - name: varlibdockercontainers
+    hostPath:
+      path: /var/lib/docker/containers
+  - name: varlibfluentbit
+    hostPath:
+      path: /var/lib/fluentbit
 
 volumeMounts:
   - name: varlog
     mountPath: /var/log
+    readOnly: true
+  - name: varlibdockercontainers
+    mountPath: /var/lib/docker/containers
+    readOnly: true
+  - name varlibfluentbit
+    mountPath: /var/lib/fluentbit
