@@ -205,9 +205,9 @@ module "eks_blueprints_base_addons" {
 module "cert_manager" {
   source = "./cert-manager"
 
-  enabled            = true
-  eks_cluster_id     = module.eks_blueprints.eks_cluster_id
-  eks_cluster_domain = data.aws_route53_zone.public.name
+  enabled        = true
+  eks_cluster_id = module.eks_blueprints.eks_cluster_id
+  domain_names   = data.aws_route53_zone.public.name
   helm_config = {
     version = "v1.8.2"
   }
