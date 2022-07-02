@@ -189,6 +189,18 @@ module "eks_blueprints_base_addons" {
   aws_for_fluentbit_cw_log_group_retention   = var.log_retention_days
   aws_for_fluentbit_cw_log_group_kms_key_arn = module.logs_kms_key.key_arn # needs bugfix in blueprints
 
+  enable_cert_manager = true
+  cert_manager_helm_config = {
+    version = "v1.8.2"
+    values  = [templatefile("${path.module}/templates/cert-manager-values.yaml", {})]
+  }
+  cert_manager_irsa_policies = []
+  cert_manager_domain_names = [
+    data.aws_route53_zone.public.name,
+  ]
+  cert_manager_install_letsencrypt_issuers = false
+  cert_manager_letsencrypt_email           = ""
+
   enable_aws_load_balancer_controller      = true
   aws_load_balancer_controller_helm_config = {}
 
