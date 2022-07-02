@@ -191,7 +191,6 @@ module "eks_blueprints_base_addons" {
 
   enable_cert_manager = true
   cert_manager_helm_config = {
-    version = "v1.8.2"
     values  = [templatefile("${path.module}/templates/cert-manager-values.yaml", {})]
   }
   cert_manager_irsa_policies = []
