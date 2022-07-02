@@ -1,82 +1,62 @@
 locals {
-  partition_id        = data.aws_partition.current.partition
-  name_iam            = "${var.cluster_name}-cert-manager-irsa"
-  name_certmgr        = "${var.system_name}-cert-manager"
-  name_cainjector     = "${var.system_name}-cert-manager-cainjector"
-  name_webhook        = "${var.system_name}-cert-manager-webhook"
-  name_issuers        = "${var.system_name}-cert-manager-controller-issuers"
-  name_clusterissuers = "${var.system_name}-cert-manager-controller-clusterissuers"
-  name_certificates   = "${var.system_name}-cert-manager-controller-certificates"
-  name_orders         = "${var.system_name}-cert-manager-controller-orders"
-  name_challenges     = "${var.system_name}-cert-manager-controller-challenges"
-  name_ingressshim    = "${var.system_name}-cert-manager-controller-ingress-shim"
-  name_view           = "${var.system_name}-cert-manager-view"
-  name_edit           = "${var.system_name}-cert-manager-edit"
-  name_approve        = "${var.system_name}-cert-manager-controller-approve:cert-manager-io"
-  name_csr            = "${var.system_name}-cert-manager-controller-certificatesigningrequests"
-  name_sar            = "${var.system_name}-cert-manager-webhook:subjectaccessreviews"
-  name_startupcheck   = "${var.system_name}-cert-manager-startupapicheck"
-  labels_cainjector = {
-    "app"                          = "cainjector"
-    "app.kubernetes.io/component"  = "cainjector"
-    "app.kubernetes.io/instance"   = var.system_name
-    "app.kubernetes.io/managed-by" = "Terraform"
-    "app.kubernetes.io/name"       = "cainjector"
-    "app.kubernetes.io/version"    = var.cert_manager_version
-  }
-  labels_controller = {
-    "app"                          = "cert-manager"
-    "app.kubernetes.io/component"  = "controller"
-    "app.kubernetes.io/instance"   = var.system_name
-    "app.kubernetes.io/managed-by" = "Terraform"
-    "app.kubernetes.io/name"       = "cert-manager"
-    "app.kubernetes.io/version"    = var.cert_manager_version
-  }
-  labels_webhook = {
-    "app"                          = "webhook"
-    "app.kubernetes.io/component"  = "webhook"
-    "app.kubernetes.io/instance"   = var.system_name
-    "app.kubernetes.io/managed-by" = "Terraform"
-    "app.kubernetes.io/name"       = "webhook"
-    "app.kubernetes.io/version"    = var.cert_manager_version
-  }
-  labels_certmgr = {
-    "app"                          = "cert-manager"
-    "app.kubernetes.io/component"  = "cert-manager"
-    "app.kubernetes.io/instance"   = var.system_name
-    "app.kubernetes.io/managed-by" = "Terraform"
-    "app.kubernetes.io/name"       = "cert-manager"
-    "app.kubernetes.io/version"    = var.cert_manager_version
-  }
-  labels_startup = {
-    "app"                          = "startupapicheck"
-    "app.kubernetes.io/component"  = "startupapicheck"
-    "app.kubernetes.io/instance"   = var.system_name
-    "app.kubernetes.io/managed-by" = "Terraform"
-    "app.kubernetes.io/name"       = "startupapicheck"
-    "app.kubernetes.io/version"    = var.cert_manager_version
+  eks_oidc_issuer_url  = replace(data.aws_eks_cluster.eks_cluster.identity[0].oidc[0].issuer, "https://", "")
+  eks_cluster_endpoint = data.aws_eks_cluster.eks_cluster.endpoint
+  eks_cluster_version  = data.aws_eks_cluster.eks_cluster.version
+  addon_context = {
+    aws_caller_identity_account_id = data.aws_caller_identity.current.account_id
+    aws_caller_identity_arn        = data.aws_caller_identity.current.arn
+    aws_eks_cluster_endpoint       = local.eks_cluster_endpoint
+    aws_partition_id               = data.aws_partition.current.partition
+    aws_region_name                = data.aws_region.current.name
+    eks_cluster_id                 = var.eks_cluster_id
+    eks_oidc_issuer_url            = local.eks_oidc_issuer_url
+    eks_oidc_provider_arn          = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/${local.eks_oidc_issuer_url}"
+    tags                           = var.tags
+    irsa_iam_role_path             = "/"
+    irsa_iam_permissions_boundary  = ""
   }
 
-  certmgr_prometheus = {
-    "prometheus.io/path"   = "/metrics"
-    "prometheus.io/port"   = "9402"
-    "prometheus.io/scrape" = "true"
-  }
-  certmgr_metrics_annotations = var.register_prometheus_endpoints ? local.certmgr_prometheus : {}
+  name                 = "cert-manager"
+  service_account_name = "cert-manager" # AWS PrivateCA is expecting the service account name as `cert-manager`
 
-  enabled_selfsign = var.enabled && var.issuer_type == "SelfSigned"
-  enabled_ca       = var.enabled && var.issuer_type == "CA"
-  bootstrap_ca     = var.ca_certificate == null || var.ca_key == null
-  enabled_vault    = var.enabled && var.issuer_type == "Vault"
-  enabled_venafi   = var.enabled && var.issuer_type == "Venafi"
-  enabled_acme     = var.enabled && var.issuer_type == "ACME"
-  enabled_kms      = var.enabled && var.issuer_type == "KMS" && var.kms_key != null
-  enabled_acm      = var.enabled && var.issuer_type == "ACM"
-  enabled_cflare   = var.enabled && var.issuer_type == "Cloudflare"
-  enabled_dns01    = local.enabled_acme && var.acme_challenge_method == "DNS01"
-
-  certmgr_sa_annotations = {
-    "eks.amazonaws.com/role-arn" = local.enabled_dns01 ? aws_iam_role.certmgr[0].arn : ""
+  default_helm_config = {
+    name        = local.name
+    chart       = local.name
+    repository  = "https://charts.jetstack.io"
+    version     = "v1.8.2"
+    namespace   = local.name
+    description = "Cert Manager Add-on"
+    values      = local.default_helm_values
   }
 
+  default_helm_values = [templatefile("${path.module}/values.yaml", {})]
+
+  helm_config = merge(
+    local.default_helm_config,
+    var.helm_config
+  )
+
+  set_values = [
+    {
+      name  = "serviceAccount.name"
+      value = local.service_account_name
+    },
+    {
+      name  = "serviceAccount.create"
+      value = false
+    }
+  ]
+
+  irsa_config = {
+    kubernetes_namespace              = local.helm_config["namespace"]
+    kubernetes_service_account        = local.service_account_name
+    create_kubernetes_namespace       = try(local.helm_config["create_namespace"], true)
+    create_kubernetes_service_account = true
+    irsa_iam_policies                 = concat(aws_iam_policy.cert_manager.*.arn, var.irsa_policies)
+  }
+
+  argocd_gitops_config = {
+    enable             = true
+    serviceAccountName = local.service_account_name
+  }
 }
