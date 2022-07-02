@@ -207,7 +207,7 @@ module "cert_manager" {
 
   enabled        = true
   eks_cluster_id = module.eks_blueprints.eks_cluster_id
-  domain_names   = data.aws_route53_zone.public.name
+  domain_names   = [data.aws_route53_zone.public.name]
   helm_config = {
     version = "v1.8.2"
   }
