@@ -201,19 +201,3 @@ module "eks_blueprints_base_addons" {
 
   depends_on = [module.eks_blueprints, module.vpc_cni, module.logs_kms_key]
 }
-
-module "cert_manager" {
-  source = "./cert-manager"
-
-  enabled        = true
-  eks_cluster_id = module.eks_blueprints.eks_cluster_id
-  domain_names   = [data.aws_route53_zone.public.name]
-  helm_config = {
-    version = "v1.8.2"
-  }
-  irsa_policies               = []
-  install_letsencrypt_issuers = false
-  letsencrypt_email           = ""
-
-  tags = module.this.tags
-}
