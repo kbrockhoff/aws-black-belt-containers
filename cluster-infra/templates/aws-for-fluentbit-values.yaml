@@ -87,7 +87,7 @@ additionalInputs: |
       Systemd_Filter      _SYSTEMD_UNIT=docker.service
       Systemd_Filter      _SYSTEMD_UNIT=containerd.service
       Systemd_Filter      _SYSTEMD_UNIT=kubelet.service
-      DB                  /var/log/systemd.db
+      DB                  /var/lib/fluentbit/state/systemd.db
       Path                /var/log/journal
       Read_From_Tail      $${READ_FROM_TAIL}
   
