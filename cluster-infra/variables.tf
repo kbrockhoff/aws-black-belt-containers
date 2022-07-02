@@ -19,6 +19,11 @@ variable "sso_readonly_role_name" {
   type        = string
 }
 
+variable "github_role_name" {
+  description = "Name of IAM role used by GitHub Actions."
+  type        = string
+}
+
 variable "eks_version" {
   description = "Version of the EKS K8S cluster"
   type        = string

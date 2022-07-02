@@ -45,6 +45,7 @@ module "eks_blueprints" {
   cluster_kms_key_additional_admin_arns = [
     data.aws_iam_role.administrator.arn,
     data.aws_iam_role.poweruser.arn,
+    data.aws_iam_role.github.arn,
   ]
 
   cluster_endpoint_public_access  = true
@@ -191,7 +192,8 @@ module "eks_blueprints_base_addons" {
 
   enable_cert_manager = true
   cert_manager_helm_config = {
-    values = [templatefile("${path.module}/templates/cert-manager-values.yaml", {})]
+    version = "v1.8.2"
+    values  = [templatefile("${path.module}/templates/cert-manager-values.yaml", {})]
   }
   cert_manager_irsa_policies = []
   cert_manager_domain_names = [
@@ -207,6 +209,13 @@ module "eks_blueprints_base_addons" {
   external_dns_helm_config   = {}
   external_dns_irsa_policies = []
   #  external_dns_private_zone  = false
+
+  enable_argocd = true
+  argocd_helm_config = {
+    values = [templatefile("${path.module}/templates/argocd-values.yaml", {})]
+  }
+  argocd_applications               = {}
+  argocd_admin_password_secret_name = ""
 
   tags = module.this.tags
 

@@ -7,6 +7,7 @@ locals {
   lb_name          = local.cluster_name
   waf_name         = "${local.cluster_name}-waf"
   loggroup_name    = "/aws/containerinsights/${local.cluster_name}/application"
+  argocd_name      = "${local.cluster_name}-argocd"
 
   eks_map_roles = concat([
     {
