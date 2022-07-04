@@ -6,7 +6,10 @@ locals {
   noderole_name    = "${local.cluster_name}-managednodes"
   lb_name          = local.cluster_name
   waf_name         = "${local.cluster_name}-waf"
-  loggroup_name    = "/aws/containerinsights/${local.cluster_name}/application"
+  appslog_name     = "/dl/eks/${local.cluster_name}/application"
+  datalog_name     = "/dl/eks/${local.cluster_name}/dataplane"
+  hostlog_name     = "/dl/eks/${local.cluster_name}/host"
+  argocd_name      = "${local.cluster_name}-argocd"
 
   eks_map_roles = concat([
     {
@@ -33,9 +36,7 @@ locals {
   all_cidrs = [for cba in data.aws_vpc.shared.cidr_block_associations : cba.cidr_block]
 
   log_kms_name     = "${local.cluster_name}-ekslogs"
-  log_kms_alias    = "alias/${local.log_kms_name}-key"
   ebs_kms_name     = "${local.cluster_name}-ebs"
-  ebs_kms_alias    = "alias/${local.ebs_kms_name}-key"
   cluster_role_arn = "arn:${local.partition_id}:iam::${local.account_id}:role/${local.cluster_name}-cluster-role"
   node_role_arn    = "arn:${local.partition_id}:iam::${local.account_id}:role/${local.noderole_name}"
 

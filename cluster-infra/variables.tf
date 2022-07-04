@@ -19,6 +19,11 @@ variable "sso_readonly_role_name" {
   type        = string
 }
 
+variable "github_role_name" {
+  description = "Name of IAM role used by GitHub Actions."
+  type        = string
+}
+
 variable "eks_version" {
   description = "Version of the EKS K8S cluster"
   type        = string
@@ -98,6 +103,12 @@ variable "log_retention_days" {
   description = "Number of days to retain CloudWatchLogs."
   type        = number
   default     = 14
+}
+
+variable "argocd_admin_password_secret_name" {
+  description = "Name for a secret stored in AWS Secrets Manager that contains the admin password"
+  type        = string
+  default     = ""
 }
 
 variable "tls_crt_filename" {

@@ -1,19 +1,29 @@
-resource "aws_cloudwatch_log_group" "dataplane" {
-  name              = "/aws/containerinsights/${local.cluster_name}/dataplane"
+resource "aws_cloudwatch_log_group" "applications" {
+  name              = local.appslog_name
   retention_in_days = var.log_retention_days
-  kms_key_id        = module.logs_kms_key.key_arn
+  kms_key_id        = aws_kms_key.logs.arn
 
   tags = merge(module.this.tags, {
-    Name = "/aws/containerinsights/${local.cluster_name}/dataplane"
+    Name = local.appslog_name
+  })
+}
+
+resource "aws_cloudwatch_log_group" "dataplane" {
+  name              = local.datalog_name
+  retention_in_days = var.log_retention_days
+  kms_key_id        = aws_kms_key.logs.arn
+
+  tags = merge(module.this.tags, {
+    Name = local.datalog_name
   })
 }
 
 resource "aws_cloudwatch_log_group" "host" {
-  name              = "/aws/containerinsights/${local.cluster_name}/host"
+  name              = local.hostlog_name
   retention_in_days = var.log_retention_days
-  kms_key_id        = module.logs_kms_key.key_arn
+  kms_key_id        = aws_kms_key.logs.arn
 
   tags = merge(module.this.tags, {
-    Name = "/aws/containerinsights/${local.cluster_name}/host"
+    Name = local.hostlog_name
   })
 }

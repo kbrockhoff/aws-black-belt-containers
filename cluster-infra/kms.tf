@@ -40,23 +40,18 @@ data "aws_iam_policy_document" "logs_kms_key" {
   }
 }
 
-module "logs_kms_key" {
-  source  = "cloudposse/kms-key/aws"
-  version = "0.12.1"
-
-  namespace                = ""
-  environment              = ""
-  stage                    = ""
-  name                     = local.log_kms_name
+resource "aws_kms_key" "logs" {
   description              = "CMK for encrypting EKS logs"
   key_usage                = "ENCRYPT_DECRYPT"
+  policy                   = data.aws_iam_policy_document.logs_kms_key.json
   customer_master_key_spec = "SYMMETRIC_DEFAULT"
   deletion_window_in_days  = 14
+  is_enabled               = true
   enable_key_rotation      = true
-  alias                    = local.log_kms_alias
-  policy                   = data.aws_iam_policy_document.logs_kms_key.json
 
-  tags = module.this.tags
+  tags = merge(module.this.tags, {
+    Name = local.log_kms_name
+  })
 }
 
 data "aws_iam_policy_document" "ebs_kms_key" {
@@ -115,21 +110,16 @@ data "aws_iam_policy_document" "ebs_kms_key" {
   }
 }
 
-module "ebs_kms_key" {
-  source  = "cloudposse/kms-key/aws"
-  version = "0.12.1"
-
-  namespace                = ""
-  environment              = ""
-  stage                    = ""
-  name                     = local.ebs_kms_name
+resource "aws_kms_key" "ebs" {
   description              = "CMK for encrypting EBS volumes"
   key_usage                = "ENCRYPT_DECRYPT"
+  policy                   = data.aws_iam_policy_document.ebs_kms_key.json
   customer_master_key_spec = "SYMMETRIC_DEFAULT"
   deletion_window_in_days  = 14
+  is_enabled               = true
   enable_key_rotation      = true
-  alias                    = local.ebs_kms_alias
-  policy                   = data.aws_iam_policy_document.ebs_kms_key.json
 
-  tags = module.this.tags
+  tags = merge(module.this.tags, {
+    Name = local.ebs_kms_name
+  })
 }
