@@ -188,7 +188,7 @@ module "eks_blueprints_base_addons" {
   ]
   aws_for_fluentbit_cw_log_group_name        = local.appslog_name
   aws_for_fluentbit_cw_log_group_retention   = var.log_retention_days
-  aws_for_fluentbit_cw_log_group_kms_key_arn = null # needs bugfix in blueprints
+  aws_for_fluentbit_cw_log_group_kms_key_arn = aws_kms_key.logs.arn # needs bugfix in blueprints
 
   enable_cert_manager = true
   cert_manager_helm_config = {
