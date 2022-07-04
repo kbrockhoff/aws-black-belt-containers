@@ -35,15 +35,15 @@ output "eks_oidc_provider_arn" {
 
 output "applications_log_group_name" {
   description = "Name of log group holding workloads logs."
-  value       = aws + aws_cloudwatch_log_group.applications.name
+  value       = aws_cloudwatch_log_group.applications.name
 }
 
 output "dataplane_log_group_name" {
   description = "Name of log group holding cluster data plane logs."
-  value       = aws + aws_cloudwatch_log_group.dataplane.name
+  value       = aws_cloudwatch_log_group.dataplane.name
 }
 
 output "host_log_group_name" {
   description = "Name of log group holding cluster host VM logs."
-  value       = aws + aws_cloudwatch_log_group.host.name
+  value       = aws_cloudwatch_log_group.host.name
 }
