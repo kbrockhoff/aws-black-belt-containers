@@ -80,3 +80,7 @@ data "aws_iam_role" "poweruser" {
 data "aws_iam_role" "readonly" {
   name = var.sso_readonly_role_name
 }
+
+data "aws_iam_role" "github" {
+  name = var.github_role_name
+}
