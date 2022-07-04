@@ -35,7 +35,7 @@ output "eks_oidc_provider_arn" {
 
 output "applications_log_group_name" {
   description = "Name of log group holding workloads logs."
-  value       = aws_cloudwatch_log_group.applications.name
+  value       = local.appslog_name
 }
 
 output "dataplane_log_group_name" {
