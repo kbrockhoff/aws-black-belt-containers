@@ -1,4 +1,0 @@
-# AWS for Fluent Bit Values
-awsForFluentBit:
-  enable: true
-  logGroupName: /dl/eks/dl-aws-k8strng-sbox-bbckb/application
