@@ -217,6 +217,11 @@ module "eks_blueprints_base_addons" {
   argocd_applications               = {}
   argocd_admin_password_secret_name = ""
 
+  enable_opentelemetry_operator      = true
+  opentelemetry_operator_helm_config = {}
+  enable_amazon_eks_adot             = false
+  amazon_eks_adot_config             = {}
+
   tags = module.this.tags
 
   depends_on = [module.eks_blueprints, module.vpc_cni, aws_kms_key.logs]
