@@ -105,6 +105,12 @@ variable "log_retention_days" {
   default     = 14
 }
 
+variable "argocd_admin_password_secret_name" {
+  description = "Name for a secret stored in AWS Secrets Manager that contains the admin password"
+  type        = string
+  default     = ""
+}
+
 variable "tls_crt_filename" {
   description = "Path to the file containing the certificate chain for the CA signing certificate to use."
   type        = string

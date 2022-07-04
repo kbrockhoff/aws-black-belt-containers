@@ -54,7 +54,7 @@ module "eks_blueprints" {
   create_cloudwatch_log_group            = true
   cluster_enabled_log_types              = var.cluster_enabled_log_types
   cloudwatch_log_group_retention_in_days = var.log_retention_days
-  cloudwatch_log_group_kms_key_id        = module.logs_kms_key.key_arn
+  cloudwatch_log_group_kms_key_id        = aws_kms_key.logs.arn
 
   managed_node_groups = {
     alwayson = {
@@ -127,7 +127,7 @@ module "ebs_csi" {
 
   enabled        = true
   cluster_name   = module.eks_blueprints.eks_cluster_id
-  ebs_kms_key_id = module.ebs_kms_key.key_arn
+  ebs_kms_key_id = aws_kms_key.ebs.arn
 
   tags = module.this.tags
 
@@ -158,66 +158,45 @@ module "eks_blueprints_base_addons" {
     resolve_conflicts = "OVERWRITE"
   }
 
-  enable_metrics_server      = true
-  metrics_server_helm_config = {}
-
-  enable_aws_for_fluentbit = true
-  aws_for_fluentbit_helm_config = {
-    namespace                                 = "logging"
-    aws_for_fluent_bit_cw_log_group           = local.loggroup_name
-    aws_for_fluentbit_cwlog_retention_in_days = var.log_retention_days
-    create_namespace                          = true
-    values = [templatefile("${path.module}/templates/aws-for-fluentbit-values.yaml", {
-      aws_region           = var.region
-      log_group_name       = local.loggroup_name
-      service_account_name = "${local.cluster_name}-aws-for-fluent-bit-irsa"
-      cluster_name         = local.cluster_name
-      dataplane_log_group  = aws_cloudwatch_log_group.dataplane.name
-      host_log_group       = aws_cloudwatch_log_group.host.name
-    })]
-    set = [
-      {
-        name  = "nodeSelector.kubernetes\\.io/os"
-        value = "linux"
-      }
-    ]
-  }
-  aws_for_fluentbit_irsa_policies = [
-    "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy",
-    "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
-  ]
-  aws_for_fluentbit_cw_log_group_name        = local.loggroup_name
-  aws_for_fluentbit_cw_log_group_retention   = var.log_retention_days
-  aws_for_fluentbit_cw_log_group_kms_key_arn = module.logs_kms_key.key_arn # needs bugfix in blueprints
-
-  enable_cert_manager = true
-  cert_manager_helm_config = {
-    version = "v1.8.2"
-    values  = [templatefile("${path.module}/templates/cert-manager-values.yaml", {})]
-  }
-  cert_manager_irsa_policies = []
-  cert_manager_domain_names = [
-    data.aws_route53_zone.public.name,
-  ]
-  cert_manager_install_letsencrypt_issuers = false
-  cert_manager_letsencrypt_email           = ""
-
-  enable_aws_load_balancer_controller      = true
-  aws_load_balancer_controller_helm_config = {}
-
-  enable_external_dns        = true
-  external_dns_helm_config   = {}
-  external_dns_irsa_policies = []
-  #  external_dns_private_zone  = false
-
   enable_argocd = true
   argocd_helm_config = {
     values = [templatefile("${path.module}/templates/argocd-values.yaml", {})]
   }
-  argocd_applications               = {}
-  argocd_admin_password_secret_name = ""
+  argocd_applications = {
+    addons = {
+      name               = "cluster-services"
+      project            = "default"
+      repo_url           = "https://github.com/kbrockhoff/aws-black-belt-containers.git"
+      target_revision    = "HEAD"
+      path               = "argocd-cluster"
+      add_on_application = true
+    }
+  }
+  argocd_admin_password_secret_name = var.argocd_admin_password_secret_name
+  argocd_manage_add_ons             = true
+
+  enable_metrics_server    = true
+  enable_aws_for_fluentbit = true
+  aws_for_fluentbit_irsa_policies = [
+    "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy",
+    "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
+  ]
+  #  aws_for_fluentbit_cw_log_group_name        = local.loggroup_name
+  #  aws_for_fluentbit_cw_log_group_retention   = var.log_retention_days
+  #  aws_for_fluentbit_cw_log_group_kms_key_arn = aws_kms_key.logs.arn # needs bugfix in blueprints
+
+  #  enable_cert_manager = true
+  #  cert_manager_irsa_policies = []
+  #  cert_manager_domain_names = [
+  #    data.aws_route53_zone.public.name,
+  #  ]
+  #  cert_manager_letsencrypt_email = var.cert_admin_email
+  #  enable_aws_load_balancer_controller      = true
+  #  enable_external_dns        = true
+  #  external_dns_irsa_policies = []
+  #  #  external_dns_private_zone  = false
 
   tags = module.this.tags
 
-  depends_on = [module.eks_blueprints, module.vpc_cni, module.logs_kms_key]
+  depends_on = [module.eks_blueprints, module.vpc_cni, aws_kms_key.logs]
 }
