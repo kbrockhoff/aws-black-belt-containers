@@ -50,7 +50,7 @@ data "aws_iam_policy_document" "secrets_kms_key" {
 resource "aws_kms_key" "secrets" {
   description              = "Encrypts SecretsManager secrets used by the project"
   key_usage                = "ENCRYPT_DECRYPT"
-  customer_master_key_spec = "SYMETRIC_DEFAULT"
+  customer_master_key_spec = "SYMMETRIC_DEFAULT"
   policy                   = data.aws_iam_policy_document.secrets_kms_key.json
   deletion_window_in_days  = 14
   is_enabled               = true

@@ -5,5 +5,5 @@ data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
 data "external" "pwgen" {
-  program = ["${path.module}/genpasswd.sh"]
+  program = ["${path.module}/gen-passwd.sh"]
 }
