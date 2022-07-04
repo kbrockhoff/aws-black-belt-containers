@@ -160,6 +160,8 @@ module "eks_blueprints_base_addons" {
 
   enable_argocd = true
   argocd_helm_config = {
+    name   = "cluster"
+    chart  = "argo-cd"
     values = [templatefile("${path.module}/templates/argocd-values.yaml", {})]
   }
   argocd_applications = {
@@ -172,7 +174,7 @@ module "eks_blueprints_base_addons" {
       add_on_application = true
     }
   }
-  argocd_admin_password_secret_name = var.argocd_admin_password_secret_name
+  argocd_admin_password_secret_name = ""
   argocd_manage_add_ons             = true
 
   enable_metrics_server    = true
@@ -181,20 +183,20 @@ module "eks_blueprints_base_addons" {
     "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy",
     "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
   ]
-  #  aws_for_fluentbit_cw_log_group_name        = local.loggroup_name
-  #  aws_for_fluentbit_cw_log_group_retention   = var.log_retention_days
-  #  aws_for_fluentbit_cw_log_group_kms_key_arn = aws_kms_key.logs.arn # needs bugfix in blueprints
+  aws_for_fluentbit_cw_log_group_name        = local.appslog_name
+  aws_for_fluentbit_cw_log_group_retention   = var.log_retention_days
+  aws_for_fluentbit_cw_log_group_kms_key_arn = aws_kms_key.logs.arn # needs bugfix in blueprints
 
-  #  enable_cert_manager = true
-  #  cert_manager_irsa_policies = []
-  #  cert_manager_domain_names = [
-  #    data.aws_route53_zone.public.name,
-  #  ]
-  #  cert_manager_letsencrypt_email = var.cert_admin_email
-  #  enable_aws_load_balancer_controller      = true
-  #  enable_external_dns        = true
-  #  external_dns_irsa_policies = []
-  #  #  external_dns_private_zone  = false
+  enable_cert_manager        = true
+  cert_manager_irsa_policies = []
+  cert_manager_domain_names = [
+    data.aws_route53_zone.public.name,
+  ]
+  cert_manager_letsencrypt_email      = var.cert_admin_email
+  enable_aws_load_balancer_controller = true
+  enable_external_dns                 = true
+  external_dns_irsa_policies          = []
+  #  external_dns_private_zone  = false
 
   tags = module.this.tags
 
