@@ -51,6 +51,13 @@ data "aws_security_group" "lb" {
   }
 }
 
+data "aws_security_group" "allvpc" {
+  vpc_id = data.aws_vpc.shared.id
+  tags = {
+    "Name" = "dl-aws-k8strng-sbox-bbckb-sg"
+  }
+}
+
 data "aws_eks_addon_version" "latest" {
   for_each = toset(["vpc-cni", "coredns", "aws-ebs-csi-driver"])
 
