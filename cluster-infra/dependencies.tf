@@ -47,7 +47,7 @@ data "aws_subnets" "lb" {
 data "aws_security_group" "lb" {
   vpc_id = data.aws_vpc.shared.id
   tags = {
-    "Name" = "${module.this.id}-lb-sg"
+    "Name" = "dl-aws-k8strng-sbox-bbckb-lb-sg"
   }
 }
 
