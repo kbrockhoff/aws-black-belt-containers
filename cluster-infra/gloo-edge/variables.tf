@@ -24,3 +24,27 @@ variable "addon_context" {
     tags                           = map(string)
   })
 }
+
+variable "create_target_group" {
+  description = "Set to false to not create a new load balancer target group."
+  type        = bool
+  default     = true
+}
+
+variable "vpc_id" {
+  description = "VPC the gateway is running in."
+  type        = string
+  default     = ""
+}
+
+variable "alb_https_listener_arn" {
+  description = "ARN of the ALB Listener to bind the created TargetGroup to."
+  type        = string
+  default     = ""
+}
+
+variable "routed_host_names" {
+  description = "Host header values to route to created target group."
+  type        = list(string)
+  default     = []
+}
