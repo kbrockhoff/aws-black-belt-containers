@@ -17,7 +17,7 @@ resource "aws_lb_listener_rule" "https" {
 
   listener_arn = var.alb_https_listener_arn
   action {
-    type = "forward"
+    type             = "forward"
     target_group_arn = aws_lb_target_group.https[0].arn
   }
   condition {
