@@ -16,7 +16,7 @@ module "eks_blueprints" {
       from_port   = 0
       to_port     = 0
       type        = "ingress"
-      self        = true
+      cidr_blocks = local.all_cidrs
     }
     # Recommended outbound traffic for Node groups
     egress_all = {
