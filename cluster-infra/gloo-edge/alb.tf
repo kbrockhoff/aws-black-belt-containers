@@ -1,7 +1,7 @@
 resource "aws_lb_target_group" "https" {
   count = var.create_target_group ? 1 : 0
 
-  name        = "${var.addon_context.eks_cluster_id}-gloohttps"
+  name        = "${var.addon_context.eks_cluster_id}-gloo"
   port        = 443
   protocol    = "HTTPS"
   target_type = "ip"
