@@ -250,6 +250,16 @@ YAML
   depends_on = [module.eks_blueprints_base_addons]
 }
 
+module "argocd_ingress" {
+  source = "./argocd-ingress"
+
+  ingress_hostnames = [
+    "gitops.${local.dns_name}",
+  ]
+
+  depends_on = [kubectl_manifest.default_tg]
+}
+
 module "gloo_edge" {
   source = "./gloo-edge"
 

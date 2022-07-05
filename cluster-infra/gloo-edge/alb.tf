@@ -8,7 +8,7 @@ resource "aws_lb_target_group" "https" {
   vpc_id      = var.vpc_id
 
   tags = merge(var.addon_context.tags, {
-    Name = "${var.addon_context.eks_cluster_id}-gloohttps"
+    Name = "${var.addon_context.eks_cluster_id}-gloo"
   })
 }
 
