@@ -190,7 +190,12 @@ module "eks_blueprints_base_addons" {
   aws_for_fluentbit_cw_log_group_retention   = var.log_retention_days
   aws_for_fluentbit_cw_log_group_kms_key_arn = null # needs bugfix in blueprints
 
-  enable_cert_manager = true
+  enable_opentelemetry_operator      = true
+  opentelemetry_operator_helm_config = {}
+  enable_amazon_eks_adot             = false
+  amazon_eks_adot_config             = {}
+
+  enable_cert_manager = false # installed by otel
   cert_manager_helm_config = {
     version = "v1.8.2"
     values  = [templatefile("${path.module}/templates/cert-manager-values.yaml", {})]
@@ -210,6 +215,9 @@ module "eks_blueprints_base_addons" {
   external_dns_irsa_policies = []
   #  external_dns_private_zone  = false
 
+  enable_ingress_nginx      = true
+  ingress_nginx_helm_config = {}
+
   enable_argocd = true
   argocd_helm_config = {
     values = [templatefile("${path.module}/templates/argocd-values.yaml", {})]
@@ -217,12 +225,28 @@ module "eks_blueprints_base_addons" {
   argocd_applications               = {}
   argocd_admin_password_secret_name = ""
 
-  enable_opentelemetry_operator      = true
-  opentelemetry_operator_helm_config = {}
-  enable_amazon_eks_adot             = false
-  amazon_eks_adot_config             = {}
-
   tags = module.this.tags
 
   depends_on = [module.eks_blueprints, module.vpc_cni, aws_kms_key.logs]
+}
+
+module "gloo_edge" {
+  source = "./gloo-edge"
+
+  helm_config = {
+    values = [templatefile("${path.module}/templates/glooedge-values.yaml", {})]
+  }
+  addon_context = {
+    aws_caller_identity_account_id = local.account_id
+    aws_caller_identity_arn        = data.aws_caller_identity.current.arn
+    aws_eks_cluster_endpoint       = module.eks_blueprints.eks_cluster_endpoint
+    aws_partition_id               = local.partition_id
+    aws_region_name                = var.region
+    eks_cluster_id                 = module.eks_blueprints.eks_cluster_id
+    eks_oidc_issuer_url            = module.eks_blueprints.eks_oidc_issuer_url
+    eks_oidc_provider_arn          = module.eks_blueprints.eks_oidc_provider_arn
+    tags                           = module.this.tags
+  }
+
+  depends_on = [module.eks_blueprints_base_addons]
 }
