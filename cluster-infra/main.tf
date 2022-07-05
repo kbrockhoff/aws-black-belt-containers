@@ -215,8 +215,10 @@ module "eks_blueprints_base_addons" {
   external_dns_irsa_policies = []
   #  external_dns_private_zone  = false
 
-  enable_ingress_nginx      = true
-  ingress_nginx_helm_config = {}
+  enable_ingress_nginx = true
+  ingress_nginx_helm_config = {
+    values = [templatefile("${path.module}/templates/ingress-nginx-values.yaml", {})]
+  }
 
   enable_argocd = true
   argocd_helm_config = {
@@ -228,6 +230,24 @@ module "eks_blueprints_base_addons" {
   tags = module.this.tags
 
   depends_on = [module.eks_blueprints, module.vpc_cni, aws_kms_key.logs]
+}
+
+resource "kubectl_manifest" "default_tg" {
+  yaml_body = <<YAML
+apiVersion: elbv2.k8s.aws/v1beta1
+kind: TargetGroupBinding
+metadata:
+  name: ingress-nginx
+  namespace: ingress-nginx
+spec:
+  targetGroupARN: ${aws_lb_target_group.https.arn}
+  targetType: ip
+  serviceRef:
+    name: ingress-nginx-controller
+    port: 443
+YAML
+
+  depends_on = [module.eks_blueprints_base_addons]
 }
 
 module "gloo_edge" {
@@ -247,6 +267,13 @@ module "gloo_edge" {
     eks_oidc_provider_arn          = module.eks_blueprints.eks_oidc_provider_arn
     tags                           = module.this.tags
   }
+  create_target_group    = true
+  vpc_id                 = data.aws_vpc.shared.id
+  alb_https_listener_arn = aws_lb_listener.https.arn
+  routed_host_names = [
+    "api.${local.dns_name}",
+    "*.api.${local.dns_name}",
+  ]
 
   depends_on = [module.eks_blueprints_base_addons]
 }

@@ -1,0 +1,19 @@
+settings:
+
+gloo:
+  logLevel: info
+
+discovery:
+  logLevel: info
+
+gateway:
+  logLevel: info
+
+gatewayProxies:
+  gatewayProxy:
+    logLevel: info
+    service:
+      type: ClusterIP
+    kind:
+      deployment:
+        replicas: 2

@@ -12,6 +12,8 @@ gateway:
 gatewayProxies:
   gatewayProxy:
     logLevel: info
+    service:
+      type: ClusterIP
     kind:
       deployment:
         replicas: 2
