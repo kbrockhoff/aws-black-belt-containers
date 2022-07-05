@@ -13,6 +13,7 @@ resource "aws_lb" "eksingress" {
   enable_cross_zone_load_balancing = true
   ip_address_type                  = "dualstack"
   subnets                          = data.aws_subnets.lb.ids
+  security_groups                  = [data.aws_security_group.lb.id]
 
   tags = merge(module.this.tags, {
     Name = local.lb_name
@@ -27,6 +28,9 @@ resource "aws_lb_target_group" "https" {
   protocol    = "HTTPS"
   target_type = "ip"
   vpc_id      = data.aws_vpc.shared.id
+  health_check {
+    path = "/healthz"
+  }
 
   tags = merge(module.this.tags, {
     Name = "${local.lb_name}-https"

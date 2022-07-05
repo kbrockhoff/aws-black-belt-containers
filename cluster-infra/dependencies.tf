@@ -44,6 +44,13 @@ data "aws_subnets" "lb" {
   }
 }
 
+data "aws_security_group" "lb" {
+  vpc_id = data.aws_vpc.shared.id
+  tags = {
+    "Name" = "${module.this.id}-lb-sg"
+  }
+}
+
 data "aws_eks_addon_version" "latest" {
   for_each = toset(["vpc-cni", "coredns", "aws-ebs-csi-driver"])
 
