@@ -257,8 +257,9 @@ module "argocd_ingress" {
   ingress_hostnames = [
     "gitops.${local.dns_name}",
   ]
-  alb_dns_name = aws_lb.eksingress.dns_name
-  alb_zone_id  = aws_lb.eksingress.zone_id
+  route53_zone_id = data.aws_route53_zone.public.zone_id
+  alb_dns_name    = aws_lb.eksingress.dns_name
+  alb_zone_id     = aws_lb.eksingress.zone_id
 
   depends_on = [kubectl_manifest.default_tg]
 }
