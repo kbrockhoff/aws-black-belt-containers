@@ -33,3 +33,21 @@ variable "ingress_hostnames" {
   type        = list(string)
   default     = []
 }
+
+variable "route53_zone_id" {
+  description = "ID of the Route53 zone to place records in."
+  type        = string
+  default     = ""
+}
+
+variable "alb_dns_name" {
+  description = "DNS name of ALB in front of cluster."
+  type        = string
+  default     = ""
+}
+
+variable "alb_zone_id" {
+  description = "Route 53 zone fo ALB DNS record."
+  type        = string
+  default     = ""
+}
