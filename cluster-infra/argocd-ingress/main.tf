@@ -26,9 +26,5 @@ resource "kubernetes_ingress_v1" "server_http" {
         }
       }
     }
-    tls {
-      hosts       = var.ingress_hostnames
-      secret_name = "${var.helm_prefix}-server-tls"
-    }
   }
 }
