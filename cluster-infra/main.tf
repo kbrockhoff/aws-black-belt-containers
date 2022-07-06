@@ -216,11 +216,6 @@ module "eks_blueprints_base_addons" {
   enable_aws_load_balancer_controller      = true
   aws_load_balancer_controller_helm_config = {}
 
-  enable_external_dns        = true
-  external_dns_helm_config   = {}
-  external_dns_irsa_policies = []
-  #  external_dns_private_zone  = false
-
   enable_ingress_nginx = true
   ingress_nginx_helm_config = {
     values = [templatefile("${path.module}/templates/ingress-nginx-values.yaml", {})]
@@ -262,6 +257,9 @@ module "argocd_ingress" {
   ingress_hostnames = [
     "gitops.${local.dns_name}",
   ]
+  route53_zone_id = data.aws_route53_zone.public.zone_id
+  alb_dns_name    = aws_lb.eksingress.dns_name
+  alb_zone_id     = aws_lb.eksingress.zone_id
 
   depends_on = [kubectl_manifest.default_tg]
 }
