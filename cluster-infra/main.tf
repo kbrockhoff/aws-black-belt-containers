@@ -40,6 +40,9 @@ module "eks_blueprints" {
       source_cluster_security_group = true
     }
   }
+  node_security_group_tags = {
+    "karpenter.sh/discovery/${local.cluster_name}" = local.cluster_name
+  }
 
   cluster_kms_key_deletion_window_in_days = 14
   cluster_kms_key_additional_admin_arns = [
@@ -160,6 +163,9 @@ module "eks_blueprints_base_addons" {
 
   enable_metrics_server      = true
   metrics_server_helm_config = {}
+
+  enable_aws_node_termination_handler = true
+  enable_karpenter                    = true
 
   enable_aws_for_fluentbit = true
   aws_for_fluentbit_helm_config = {
