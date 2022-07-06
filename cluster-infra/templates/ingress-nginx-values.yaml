@@ -1,4 +1,4 @@
-service:
-  annotations:
-  type: ClusterIP
+controller:
+  service:
+    type: ClusterIP
 
