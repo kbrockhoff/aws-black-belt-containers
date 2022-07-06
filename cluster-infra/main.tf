@@ -291,3 +291,24 @@ module "gloo_edge" {
 
   depends_on = [module.eks_blueprints_base_addons]
 }
+
+module "prometheus_stack" {
+  source = "./prometheus"
+
+  helm_config = {
+    values = [templatefile("${path.module}/templates/kube-prom-stack-values.yaml", {})]
+  }
+  addon_context = {
+    aws_caller_identity_account_id = local.account_id
+    aws_caller_identity_arn        = data.aws_caller_identity.current.arn
+    aws_eks_cluster_endpoint       = module.eks_blueprints.eks_cluster_endpoint
+    aws_partition_id               = local.partition_id
+    aws_region_name                = var.region
+    eks_cluster_id                 = module.eks_blueprints.eks_cluster_id
+    eks_oidc_issuer_url            = module.eks_blueprints.eks_oidc_issuer_url
+    eks_oidc_provider_arn          = module.eks_blueprints.eks_oidc_provider_arn
+    tags                           = module.this.tags
+  }
+
+  depends_on = [module.eks_blueprints_base_addons]
+}
