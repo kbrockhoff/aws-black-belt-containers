@@ -337,7 +337,7 @@ module "karpenter_provisioning" {
   karpenter_provisioner_name       = "default"
   eks_cluster_version              = module.eks_blueprints.eks_cluster_version
   worker_node_security_group_id    = module.eks_blueprints.worker_node_security_group_id
-  worker_node_iam_instance_profile = module.eks_blueprints.managed_node_group_iam_instance_profile_id
+  worker_node_iam_instance_profile = module.eks_blueprints.managed_node_group_iam_instance_profile_id[0]
   launch_template_pre_userdata     = templatefile("${path.module}/templates/eks-nodes-userdata.sh", {})
 
   depends_on = [module.eks_blueprints_base_addons]
