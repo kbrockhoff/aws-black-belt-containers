@@ -2,5 +2,5 @@ controller:
   service:
     type: ClusterIP
   extraArgs:
-    - --enable-ssl-passthrough
+    enable-ssl-passthrough: ""
 
