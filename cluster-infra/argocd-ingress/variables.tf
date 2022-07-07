@@ -29,7 +29,7 @@ variable "cert_manager_cluster_issuer" {
 }
 
 variable "ingress_hostnames" {
-  description = "List of hostnames to route to ArgoCD"
+  description = "List of hostnames to route to ArgoCD."
   type        = list(string)
   default     = []
 }

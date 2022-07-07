@@ -72,6 +72,13 @@ locals {
     ) : (
     base64encode(file("${path.module}/${var.tls_key_filename}"))
   )
+
+  alertmanager_hosts = [
+    "alerts.${local.dns_name}",
+  ]
+  grafana_hosts = [
+    "metrics.${local.dns_name}",
+  ]
 }
 
 resource "tls_private_key" "certmgr_ca" {
