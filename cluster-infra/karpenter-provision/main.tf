@@ -20,11 +20,11 @@ module "karpenter_launch_template" {
           encrypted             = true
         }
       ]
+      pre_userdata         = var.launch_template_pre_userdata
+      bootstrap_extra_args = var.launch_template_bootstrap_extra_args
+      post_userdata        = var.launch_template_post_userdata
+      kubelet_extra_args   = var.launch_template_kubelet_extra_args
     }
-    pre_userdata         = var.launch_template_pre_userdata
-    bootstrap_extra_args = var.launch_template_bootstrap_extra_args
-    post_userdata        = var.launch_template_post_userdata
-    kubelet_extra_args   = var.launch_template_kubelet_extra_args
   }
 
   tags = merge(var.addon_context.tags, {
