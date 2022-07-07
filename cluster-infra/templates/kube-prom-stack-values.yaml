@@ -1,0 +1,28 @@
+${yamlencode({
+  alertManager = {
+    enabled = true
+    ingressClassName = "nginx"
+    annotations = {
+      "cert-manager.io/cluster-issuer" = "cert-manager-ca"
+    }
+    hosts = alertmanager_hosts
+    path = "/"
+    tls = [{
+      secretName = "alertmanager-general-tls"
+      hosts = alertmanager_hosts
+    }]
+  }
+  grafana = {
+    enabled = true
+    ingressClassName = "nginx"
+    annotations = {
+      "cert-manager.io/cluster-issuer" = "cert-manager-ca"
+    }
+    hosts = grafana_hosts
+    path = "/"
+    tls = [{
+      secretName = "grafana-general-tls"
+      hosts = grafana_hosts
+    }]
+  }
+})}

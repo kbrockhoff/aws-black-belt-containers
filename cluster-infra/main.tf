@@ -296,7 +296,14 @@ module "prometheus_stack" {
   source = "./prometheus"
 
   helm_config = {
-    values = [templatefile("${path.module}/templates/kube-prom-stack-values.yaml", {})]
+    values = [templatefile("${path.module}/templates/kube-prom-stack-values.yaml", {
+      alertmanager_hosts = [
+        "alerts.${local.dns_name}",
+      ]
+      grafana_hosts = [
+        "metrics.${local.dns_name}",
+      ]
+    })]
   }
   addon_context = {
     aws_caller_identity_account_id = local.account_id

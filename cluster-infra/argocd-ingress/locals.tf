@@ -8,11 +8,9 @@ locals {
   }
 
   http_ingress_annotations = {
+    "cert-manager.io/cluster-issuer"               = var.cert_manager_cluster_issuer
     "ingress.kubernetes.io/force-ssl-redirect"     = "true"
     "nginx.ingress.kubernetes.io/ssl-passthrough"  = "true"
     "nginx.ingress.kubernetes.io/backend-protocol" = "HTTPS"
-  }
-  grpc_ingress_annotations = {
-    "cert-manager.io/cluster-issuer" = var.cert_manager_cluster_issuer
   }
 }
