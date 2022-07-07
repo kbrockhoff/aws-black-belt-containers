@@ -297,12 +297,8 @@ module "prometheus_stack" {
 
   helm_config = {
     values = [templatefile("${path.module}/templates/kube-prom-stack-values.yaml", {
-      alertmanager_hosts = [
-        "alerts.${local.dns_name}",
-      ]
-      grafana_hosts = [
-        "metrics.${local.dns_name}",
-      ]
+      alertmanager_hosts = local.alertmanager_hosts
+      grafana_hosts      = local.grafana_hosts
     })]
   }
   addon_context = {
@@ -316,6 +312,10 @@ module "prometheus_stack" {
     eks_oidc_provider_arn          = module.eks_blueprints.eks_oidc_provider_arn
     tags                           = module.this.tags
   }
+  ingress_hostnames = concat(local.alertmanager_hosts, local.grafana_hosts)
+  route53_zone_id   = data.aws_route53_zone.public.zone_id
+  alb_dns_name      = aws_lb.eksingress.dns_name
+  alb_zone_id       = aws_lb.eksingress.zone_id
 
   depends_on = [module.eks_blueprints_base_addons]
 }
