@@ -1,3 +1,4 @@
 locals {
-  node_group_name_prefix = "${var.addon_context.eks_cluster_id}-karpenter-${var.karpenter_provisioner_name}"
+  node_group_name_prefix = "karpenter-${var.karpenter_provisioner_name}"
+  azs_string             = "[\"${join("\", \"", var.availability_zones)}\"]"
 }

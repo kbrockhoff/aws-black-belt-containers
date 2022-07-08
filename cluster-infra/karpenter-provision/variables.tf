@@ -56,3 +56,9 @@ variable "launch_template_kubelet_extra_args" {
   type        = string
   default     = null
 }
+
+variable "availability_zones" {
+  description = "List of availability zones to deploy into."
+  type        = list(string)
+  default     = ["us-west-2a", "us-west-2b", "us-west-2c"]
+}

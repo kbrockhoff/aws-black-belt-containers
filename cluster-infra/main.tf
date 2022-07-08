@@ -16,7 +16,7 @@ module "eks_blueprints" {
       from_port   = 0
       to_port     = 0
       type        = "ingress"
-      cidr_blocks = local.all_cidrs
+      cidr_blocks = concat(local.all_cidrs, [local.cluster_svc_cidr])
     }
     # Recommended outbound traffic for Node groups
     egress_all = {
@@ -339,6 +339,7 @@ module "karpenter_provisioning" {
   worker_node_security_group_id    = module.eks_blueprints.worker_node_security_group_id
   worker_node_iam_instance_profile = module.eks_blueprints.managed_node_group_iam_instance_profile_id[0]
   launch_template_pre_userdata     = templatefile("${path.module}/templates/eks-nodes-userdata.sh", {})
+  availability_zones               = local.node_av_zones
 
   depends_on = [module.eks_blueprints_base_addons]
 }
