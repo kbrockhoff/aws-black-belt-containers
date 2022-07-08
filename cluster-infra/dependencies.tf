@@ -24,6 +24,12 @@ data "aws_subnets" "node" {
   }
 }
 
+data "aws_subnet" "node" {
+  for_each = data.aws_subnets.node.ids
+
+  id = each.value
+}
+
 data "aws_subnets" "pod" {
   filter {
     name   = "vpc-id"
@@ -42,6 +48,12 @@ data "aws_subnets" "lb" {
   tags = {
     "dbs-networktags" = "public"
   }
+}
+
+data "aws_subnet" "lb" {
+  for_each = data.aws_subnets.lb.ids
+
+  id = each.value
 }
 
 data "aws_security_group" "lb" {

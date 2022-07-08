@@ -7,7 +7,7 @@ module "eks_blueprints" {
   vpc_id                    = data.aws_vpc.shared.id
   private_subnet_ids        = data.aws_subnets.node.ids
   cluster_ip_family         = "ipv4"
-  cluster_service_ipv4_cidr = "172.20.0.0/16"
+  cluster_service_ipv4_cidr = local.cluster_svc_cidr
   node_security_group_additional_rules = {
     # Extend node-to-node security group rules. Recommended and required for the Add-ons
     ingress_self_all = {
@@ -66,11 +66,11 @@ module "eks_blueprints" {
       iam_role_arn    = aws_iam_role.managed_ng.arn
       # Node Group compute configuration
       instance_types = ["m6a.large"]
-      subnet_ids     = data.aws_subnets.node.ids
+      subnet_ids     = local.alwayson_subnets
       # Node Group scaling configuration
-      desired_size      = 3
-      min_size          = 3
-      max_size          = 3
+      desired_size      = 2
+      min_size          = 2
+      max_size          = 2
       max_unavailable   = 1
       public_ip         = false
       enable_monitoring = true
