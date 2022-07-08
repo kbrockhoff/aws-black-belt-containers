@@ -50,7 +50,7 @@ spec:
   requirements:
     - key: "topology.kubernetes.io/zone"
       operator: In
-      values: ["us-west-2a", "us-west-2b", "us-west-2c"]
+      values: ${local.azs_string}
     - key: "kubernetes.io/arch"
       operator: In
       values: ["arm64", "amd64"]

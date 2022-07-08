@@ -33,7 +33,11 @@ locals {
   eks_map_users    = []
   eks_map_accounts = []
 
-  all_cidrs = [for cba in data.aws_vpc.shared.cidr_block_associations : cba.cidr_block]
+  cluster_svc_cidr = "172.20.0.0/16"
+  all_cidrs        = [for cba in data.aws_vpc.shared.cidr_block_associations : cba.cidr_block]
+  lb_av_zones      = [for sn in data.aws_subnet.lb : sn.availability_zone]
+  node_av_zones    = [for sn in data.aws_subnet.node : sn.availability_zone]
+  alwayson_subnets = [for sn in data.aws_subnet.node : sn.id if contains(local.lb_av_zones, sn.availability_zone)]
 
   log_kms_name     = "${local.cluster_name}-ekslogs"
   ebs_kms_name     = "${local.cluster_name}-ebs"
