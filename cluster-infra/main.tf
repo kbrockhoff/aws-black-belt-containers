@@ -319,3 +319,26 @@ module "prometheus_stack" {
 
   depends_on = [module.eks_blueprints_base_addons]
 }
+
+module "karpenter_provisioning" {
+  source = "./karpenter-provision"
+
+  addon_context = {
+    aws_caller_identity_account_id = local.account_id
+    aws_caller_identity_arn        = data.aws_caller_identity.current.arn
+    aws_eks_cluster_endpoint       = module.eks_blueprints.eks_cluster_endpoint
+    aws_partition_id               = local.partition_id
+    aws_region_name                = var.region
+    eks_cluster_id                 = module.eks_blueprints.eks_cluster_id
+    eks_oidc_issuer_url            = module.eks_blueprints.eks_oidc_issuer_url
+    eks_oidc_provider_arn          = module.eks_blueprints.eks_oidc_provider_arn
+    tags                           = module.this.tags
+  }
+  karpenter_provisioner_name       = "default"
+  eks_cluster_version              = module.eks_blueprints.eks_cluster_version
+  worker_node_security_group_id    = module.eks_blueprints.worker_node_security_group_id
+  worker_node_iam_instance_profile = module.eks_blueprints.managed_node_group_iam_instance_profile_id[0]
+  launch_template_pre_userdata     = templatefile("${path.module}/templates/eks-nodes-userdata.sh", {})
+
+  depends_on = [module.eks_blueprints_base_addons]
+}
