@@ -46,7 +46,7 @@ spec:
       value: "true"
       effect: NoSchedule
   labels:
-    dbs-project: "Black Belts"
+    dbs-project: "Black_Belts"
   requirements:
     - key: "topology.kubernetes.io/zone"
       operator: In
@@ -65,8 +65,6 @@ spec:
     launchTemplate: '${module.karpenter_launch_template.launch_template_name["linux"]}'
     subnetSelector:
       dbs-networktags: private
-    securityGroupSelector:
-      karpenter.sh/discovery/${var.addon_context.eks_cluster_id}: '${var.addon_context.eks_cluster_id}'
   ttlSecondsAfterEmpty: 120
 YAML
 }
