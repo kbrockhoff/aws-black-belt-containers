@@ -42,11 +42,11 @@ spec:
   ttlSecondsUntilExpired: 2592000
   ttlSecondsAfterEmpty: 60
   taints:
-    - key: daughertylabs.io/always_on
-      value: "true"
+    - key: daughertylabs.io/availability
+      value: "preemptable"
       effect: NoSchedule
   labels:
-    dbs-project: "Black_Belts"
+    dbs-project: "aws-training"
   requirements:
     - key: "topology.kubernetes.io/zone"
       operator: In
