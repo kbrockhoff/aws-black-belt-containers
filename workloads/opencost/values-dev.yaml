@@ -1,0 +1,42 @@
+global:
+  prometheus:
+    enabled: false
+    fqdn: http://kps-kube-prometheus-stack-prometheus.monitoring.svc:9090
+
+  grafana:
+    enabled: false
+    domainName: kps-grafana.monitoring.svc
+    scheme: "http"
+    proxy: true
+
+  notifications:
+    alertmanager:
+      enabled: false
+      fqdn: http://kps-kube-prometheus-stack-altermanager.monitoring.svc:9093
+
+kubecostMetrics:
+  exporter:
+    enabled: true
+    port: 9005
+    resources:
+      requests:
+        cpu: "200m"
+        memory: "55Mi"
+    tolerations:
+      - key: "daughertylabs.io/availability"
+        operator: "Equal"
+        value: "preemptable"
+        effect: "NoSchedule"
+    serviceMonitor:
+      enabled: true
+      additionalLabels: {}
+
+tolerations:
+  - key: "daughertylabs.io/availability"
+    operator: "Equal"
+    value: "preemptable"
+    effect: "NoSchedule"
+
+podSecurityPolicy:
+  enabled: true
+

@@ -1,0 +1,23 @@
+commonApps:
+  - name: argo-rollouts
+    namespace: argo-rollouts
+    cascadeDelete: false
+    repo:
+      path: workloads/argo-rollouts
+      revision: main
+    helm: {}
+    syncPolicy:
+      prune: true
+      selfHeal: true
+      wave: 1
+  - name: cost-analyzer
+    namespace: kubecost
+    cascadeDelete: false
+    repo:
+      path: workloads/opencost
+      revision: main
+    helm: {}
+    syncPolicy:
+      prune: true
+      selfHeal: true
+      wave: 1

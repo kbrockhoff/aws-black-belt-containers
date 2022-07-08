@@ -1,0 +1,19 @@
+{{- $root := .Values }}
+{{ $values := concat $root.commonApps ($root.additionalApps | default (list)) ($root.platformApps | default (list)) }}
+{{- range $values}}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .name }}
+  namespace: {{ $root.Namespace | default "argocd" }}
+  {{- if .cascadeDelete }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  {{- end}}
+spec:
+  project: {{ .project | default "default"}}
+  source:
+    repoURL: {{ .repo.url | default "https://github.com/kbrockhoff/aws-black-belt-containers" |quote}}
+
+{{ end }}

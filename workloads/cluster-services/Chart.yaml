@@ -1,0 +1,6 @@
+name: cluster-services
+description: Manages applications providing cluster-wide services.
+version: 0.1.0
+appVersion: 1.0.0
+home: https://github.com/kbrockhoff/aws-black-belt-containers
+apiVersion: v2

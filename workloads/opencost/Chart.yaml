@@ -1,0 +1,8 @@
+name: cost-analyzer
+version: 0.1.0
+apiVersion: v2
+
+dependencies:
+  - name: cost-analyzer
+    version: 1.94.3
+    repository: https://kubecost.github.io/cost-analyzer
