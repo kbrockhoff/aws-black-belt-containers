@@ -25,7 +25,7 @@ data "aws_subnets" "node" {
 }
 
 data "aws_subnet" "node" {
-  for_each = data.aws_subnets.node.ids
+  for_each = toset(data.aws_subnets.node.ids)
 
   id = each.value
 }
@@ -51,7 +51,7 @@ data "aws_subnets" "lb" {
 }
 
 data "aws_subnet" "lb" {
-  for_each = data.aws_subnets.lb.ids
+  for_each = toset(data.aws_subnets.lb.ids)
 
   id = each.value
 }
