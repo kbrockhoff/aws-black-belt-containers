@@ -70,7 +70,7 @@ module "eks_blueprints" {
       # Node Group scaling configuration
       desired_size      = 2
       min_size          = 2
-      max_size          = 2
+      max_size          = 4
       max_unavailable   = 1
       public_ip         = false
       enable_monitoring = true
