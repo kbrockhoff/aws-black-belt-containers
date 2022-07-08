@@ -43,7 +43,7 @@ spec:
   ttlSecondsAfterEmpty: 60
   taints:
     - key: daughertylabs.io/always_on
-      value: true
+      value: "true"
       effect: NoSchedule
   labels:
     dbs-project: "Black Belts"
