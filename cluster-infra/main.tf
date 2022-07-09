@@ -221,6 +221,15 @@ module "eks_blueprints_base_addons" {
     values = [templatefile("${path.module}/templates/ingress-nginx-values.yaml", {})]
   }
 
+  enable_velero = true
+  velero_helm_config = {
+    values = [templatefile("${path.module}/templates/velero-values.yaml", {
+      backup_s3_bucket = local.backups_bucket_name,
+    })]
+  }
+  velero_irsa_policies    = []
+  velero_backup_s3_bucket = local.backups_bucket_name
+
   enable_argocd = true
   argocd_helm_config = {
     values = [templatefile("${path.module}/templates/argocd-values.yaml", {})]

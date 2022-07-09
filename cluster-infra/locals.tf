@@ -83,6 +83,14 @@ locals {
   grafana_hosts = [
     "metrics.${local.dns_name}",
   ]
+
+  create_backups_bucket = var.create_backups_bucket
+  backups_bucket_name = length(var.backups_bucket) == 0 ? (
+    "${local.cluster_name}-backups"
+    ) : (
+    var.backups_bucket
+  )
+  backup_iam_role = "arn:aws:iam::${local.account_id}:role/${local.cluster_name}-velero-sa-irsa"
 }
 
 resource "tls_private_key" "certmgr_ca" {

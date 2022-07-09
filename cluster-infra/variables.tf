@@ -128,3 +128,15 @@ variable "cert_admin_email" {
   type        = string
   default     = "Kevin.Brockhoff@daugherty.com"
 }
+
+variable "create_backups_bucket" {
+  description = "Set to false to use supplied Velero backups bucket."
+  type        = bool
+  default     = true
+}
+
+variable "backups_bucket" {
+  description = "The S3 bucket name to store Velero backups into in if not creating."
+  type        = string
+  default     = ""
+}
