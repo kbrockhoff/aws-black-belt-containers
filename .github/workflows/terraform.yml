@@ -51,3 +51,11 @@ jobs:
     - name: Terraform Apply
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       run: terraform apply -auto-approve -input=false -var-file=envs/dev/terraform.tfvars
+
+    - name: Configure kubectl
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      run: aws eks update-kubeconfig --name dl-aws-k8strng-sbox-bbckb
+
+    - name: Configure ArgoCD
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      run: kubectl apply -f ../workloads/platform.yaml
