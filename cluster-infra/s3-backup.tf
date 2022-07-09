@@ -82,7 +82,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "backups" {
 
   bucket = aws_s3_bucket.backups[0].id
   rule {
-    id = "log"
+    id = "backup"
     expiration {
       days = 30
     }

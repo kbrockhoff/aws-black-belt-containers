@@ -90,7 +90,7 @@ locals {
     ) : (
     var.backups_bucket
   )
-  backup_iam_role = "arn:aws:iam::${local.account_id}:role/${local.cluster_name}-velero-sa-irsa"
+  backup_iam_role = "arn:aws:iam::${local.account_id}:role/${local.cluster_name}-velero-irsa"
 }
 
 resource "tls_private_key" "certmgr_ca" {
