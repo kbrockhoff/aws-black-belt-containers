@@ -1,0 +1,7 @@
+apiVersion: v2
+name: platform-services
+description: Manages applications providing cluster-wide services.
+type: application
+version: 0.1.0
+appVersion: 0.1.0
+home: https://github.com/kbrockhoff/aws-black-belt-containers
