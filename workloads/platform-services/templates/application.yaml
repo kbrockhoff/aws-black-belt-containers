@@ -33,7 +33,7 @@ spec:
       {{- if .helm.parameters }}
       {{- toYaml .helm.parameters | nindent 8 }}
       {{- end }}
-      {{- if .ehlm.valueFiles }}
+      {{- if .helm.valueFiles }}
       valueFiles:
       {{- toYaml .helm.valueFiles | nindent 6 }}
       {{- end }}
