@@ -42,7 +42,7 @@ spec:
     directory:
       recurse: {{ .directory.recurse }}
     {{- end }}
-  destionation:
+  destination:
     server: 'https://kubernetes.default.svc'
     namespace: {{ .namespace }}
   {{- if .syncPolicy }}
@@ -53,9 +53,9 @@ spec:
         duration: 30s
         factor: 2
         maxDuration: 30m
-      automated:
-        prune: {{ .syncPolicy.prune | default "false" }}
-        selfHeal: {{ .syncPolicy.selfHeal | default "false" }}
+    automated:
+      prune: {{ .syncPolicy.prune | default "false" }}
+      selfHeal: {{ .syncPolicy.selfHeal | default "false" }}
   {{- end }}
   {{- if .ignoreDifferences }}
   ignoreDifferences:
