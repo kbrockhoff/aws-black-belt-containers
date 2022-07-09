@@ -1,3 +1,5 @@
+environment: dev
+baseDomain: api.bbckb.k8sgreen.trng.aws.daughertylabs.io
 platformApps:
   - name: argo-rollouts
     cascadeDelete: false
@@ -23,3 +25,15 @@ platformApps:
       prune: true
       selfHeal: true
       wave: 1
+  - name: argocd-monitoring
+    cascadeDelete: false
+    project: platform
+    namespace: monitoring
+    repo:
+      path: workloads/argocd-monitoring
+      revision: main
+    helm: {}
+    syncPolicy:
+      prune: true
+      selfHeal: true
+      wave: 2

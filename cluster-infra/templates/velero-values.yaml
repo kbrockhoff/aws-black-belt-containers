@@ -1,0 +1,17 @@
+configuration:
+  provider: aws
+  backupStorageLocation:
+    bucket: ${backup_s3_bucket}
+
+initContainers:
+  - name: velero-plugin-for-aws
+    image: velero/velero-plugin-for-aws:v1.4.1
+    imagePullPolicy: IfNotPresent
+    volumeMounts:
+      - mountPath: /target
+        name: plugins
+  tolerations:
+    - key: "daughertylabs.io/availability"
+      operator: "Equal"
+      value: "preemptable"
+      effect: "NoSchedule"
