@@ -10,3 +10,5 @@ initContainers:
     volumeMounts:
       - mountPath: /target
         name: plugins
+
+upgradeCRDs: false
