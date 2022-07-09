@@ -1,7 +1,8 @@
-commonApps:
+platformApps:
   - name: argo-rollouts
-    namespace: argo-rollouts
     cascadeDelete: false
+    project: platform
+    namespace: argo-rollouts
     repo:
       path: workloads/argo-rollouts
       revision: main
@@ -11,8 +12,9 @@ commonApps:
       selfHeal: true
       wave: 1
   - name: cost-analyzer
-    namespace: kubecost
     cascadeDelete: false
+    project: platform
+    namespace: kubecost
     repo:
       path: workloads/opencost
       revision: main

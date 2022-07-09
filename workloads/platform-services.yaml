@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: platform-services
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  destination:
+    namespace: argocd
+    server: https://kubernetes.default.svc
+  project: platform
+  source:
+    path: workloads/platform-services
+    repoURL: https://github.com/kbrockhoff/aws-black-belt-containers
+    targetRevision: HEAD
+  syncPolicy:
+    automated: {}
