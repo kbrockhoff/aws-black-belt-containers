@@ -10,8 +10,3 @@ initContainers:
     volumeMounts:
       - mountPath: /target
         name: plugins
-  tolerations:
-    - key: "daughertylabs.io/availability"
-      operator: "Equal"
-      value: "preemptable"
-      effect: "NoSchedule"

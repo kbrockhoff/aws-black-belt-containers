@@ -15,6 +15,14 @@ ${yamlencode({
     }
   }
   grafana = {
+    tolerations = [
+      {
+         key = "daughertylabs.io/availability"
+         operator = "Equal"
+         value = "preemptable"
+         effect = "NoSchedule"
+      }
+    ]
     ingress = {
       enabled = true
       ingressClassName = "nginx"
