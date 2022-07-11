@@ -344,12 +344,15 @@ module "karpenter_provisioning" {
     eks_oidc_provider_arn          = module.eks_blueprints.eks_oidc_provider_arn
     tags                           = module.this.tags
   }
-  karpenter_provisioner_name       = "default"
-  eks_cluster_version              = module.eks_blueprints.eks_cluster_version
-  worker_node_security_group_id    = module.eks_blueprints.worker_node_security_group_id
-  worker_node_iam_instance_profile = module.eks_blueprints.managed_node_group_iam_instance_profile_id[0]
-  launch_template_pre_userdata     = templatefile("${path.module}/templates/eks-nodes-userdata.sh", {})
-  availability_zones               = local.node_av_zones
+  karpenter_provisioner_name           = "default"
+  eks_cluster_version                  = module.eks_blueprints.eks_cluster_version
+  worker_node_security_group_id        = module.eks_blueprints.worker_node_security_group_id
+  worker_node_iam_instance_profile     = module.eks_blueprints.managed_node_group_iam_instance_profile_id[0]
+  launch_template_pre_userdata         = templatefile("${path.module}/templates/eks-nodes-userdata.sh", {})
+  launch_template_kubelet_extra_args   = "--node-labels=daughertylabs.io/networktags=private,daughertylabs.io/availability=preemptable"
+  launch_template_bootstrap_extra_args = "--use-max-pods false"
+  launch_template_service_ipv4_cidr    = local.cluster_svc_cidr
+  availability_zones                   = local.node_av_zones
 
   depends_on = [module.eks_blueprints_base_addons]
 }

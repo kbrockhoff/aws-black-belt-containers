@@ -24,6 +24,7 @@ module "karpenter_launch_template" {
       bootstrap_extra_args = var.launch_template_bootstrap_extra_args
       post_userdata        = var.launch_template_post_userdata
       kubelet_extra_args   = var.launch_template_kubelet_extra_args
+      service_ipv4_cidr    = var.launch_template_service_ipv4_cidr
     }
   }
 

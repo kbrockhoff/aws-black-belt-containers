@@ -57,6 +57,12 @@ variable "launch_template_kubelet_extra_args" {
   default     = null
 }
 
+variable "launch_template_service_ipv4_cidr" {
+  description = "The CIDR range used for Kubernetes Services within the cluster."
+  type        = string
+  default     = null
+}
+
 variable "availability_zones" {
   description = "List of availability zones to deploy into."
   type        = list(string)
