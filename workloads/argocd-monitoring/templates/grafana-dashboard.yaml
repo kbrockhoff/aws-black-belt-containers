@@ -13,7 +13,7 @@ metadata:
     heritage: "Helm"
 data:
   argocd.json: |-
-    {
+    `{
     "annotations": {
         "list": [
         {
@@ -4007,4 +4007,4 @@ data:
     "title": "ArgoCD",
     "uid": "LCAgc9rWz",
     "version": 1
-    }
+    }`
