@@ -15,6 +15,7 @@ ${yamlencode({
     }
   }
   grafana = {
+    adminPassword = initial_passwd
     ingress = {
       enabled = true
       ingressClassName = "nginx"

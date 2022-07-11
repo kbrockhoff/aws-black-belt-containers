@@ -121,3 +121,8 @@ resource "tls_self_signed_cert" "certmgr_ca" {
     province            = "MO"
   }
 }
+
+resource "random_password" "grafana" {
+  length  = 16
+  special = true
+}

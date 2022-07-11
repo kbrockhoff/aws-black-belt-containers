@@ -309,6 +309,7 @@ module "prometheus_stack" {
     values = [templatefile("${path.module}/templates/kube-prom-stack-values.yaml", {
       alertmanager_hosts = local.alertmanager_hosts
       grafana_hosts      = local.grafana_hosts
+      initial_passwd     = random_password.grafana.result
     })]
   }
   addon_context = {
