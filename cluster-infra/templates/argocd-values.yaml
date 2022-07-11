@@ -1,10 +1,3 @@
-redis:
-  tolerations:
-    - key: "daughertylabs.io/availability"
-      operator: "Equal"
-      value: "preemptable"
-      effect: "NoSchedule"
-
 redis-ha:
   enabled: false
 
@@ -19,11 +12,6 @@ server:
     minReplicas: 1
   metrics:
     enabled: true
-  tolerations:
-    - key: "daughertylabs.io/availability"
-      operator: "Equal"
-      value: "preemptable"
-      effect: "NoSchedule"
 
 repoServer:
   autoscaling:
@@ -31,17 +19,7 @@ repoServer:
     minReplicas: 1
   metrics:
     enabled: true
-  tolerations:
-    - key: "daughertylabs.io/availability"
-      operator: "Equal"
-      value: "preemptable"
-      effect: "NoSchedule"
 
 applicationSet:
   metrics:
     enabled: true
-  tolerations:
-    - key: "daughertylabs.io/availability"
-      operator: "Equal"
-      value: "preemptable"
-      effect: "NoSchedule"

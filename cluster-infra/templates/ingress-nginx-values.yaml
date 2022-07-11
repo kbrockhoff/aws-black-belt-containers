@@ -3,4 +3,6 @@ controller:
     type: ClusterIP
   extraArgs:
     enable-ssl-passthrough: ""
+  nodeSelector:
+    daughertylabs.io/networktags: public
 
