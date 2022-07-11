@@ -41,12 +41,9 @@ metadata:
 spec:
   ttlSecondsUntilExpired: 2592000
   ttlSecondsAfterEmpty: 60
-  taints:
-    - key: daughertylabs.io/availability
-      value: "preemptable"
-      effect: NoSchedule
   labels:
-    dbs-project: "aws-training"
+    daughertylabs.io/networktags: private
+    daughertylabs.io/availability: preemptable
   requirements:
     - key: "topology.kubernetes.io/zone"
       operator: In

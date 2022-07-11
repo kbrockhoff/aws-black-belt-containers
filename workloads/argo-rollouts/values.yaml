@@ -1,9 +1,4 @@
 controller:
-  tolerations:
-    - key: "daughertylabs.io/availability"
-      operator: "Equal"
-      value: "preemptable"
-      effect: "NoSchedule"
   metrics:
     enabled: true
     serviceMonitor:
@@ -11,8 +6,3 @@ controller:
 
 dashboard:
   enabled: true
-  tolerations:
-    - key: "daughertylabs.io/availability"
-      operator: "Equal"
-      value: "preemptable"
-      effect: "NoSchedule"

@@ -81,7 +81,8 @@ module "eks_blueprints" {
       pre_userdata           = templatefile("${path.module}/templates/eks-nodes-userdata.sh", {})
       k8s_taints             = []
       k8s_labels = {
-        dbs-deployer = "Terraform"
+        "daughertylabs.io/networktags"  = "public"
+        "daughertylabs.io/availability" = "always_on"
       }
       # Root storage
       block_device_mappings = [

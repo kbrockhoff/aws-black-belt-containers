@@ -233,8 +233,6 @@ updateStrategy:
 nodeSelector:
   kubernetes.io/os: linux
 
-tolerations: [ ]
-
 affinity: { }
 
 annotations: { }

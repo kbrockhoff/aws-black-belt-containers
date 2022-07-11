@@ -22,20 +22,9 @@ kubecostMetrics:
       requests:
         cpu: "200m"
         memory: "55Mi"
-    tolerations:
-      - key: "daughertylabs.io/availability"
-        operator: "Equal"
-        value: "preemptable"
-        effect: "NoSchedule"
     serviceMonitor:
       enabled: true
       additionalLabels: {}
-
-tolerations:
-  - key: "daughertylabs.io/availability"
-    operator: "Equal"
-    value: "preemptable"
-    effect: "NoSchedule"
 
 podSecurityPolicy:
   enabled: true
