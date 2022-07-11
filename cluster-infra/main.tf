@@ -93,7 +93,7 @@ module "eks_blueprints" {
           iops                  = 3000
           throughput            = 125
           delete_on_termination = true
-          encrypted             = false
+          encrypted             = true
         }
       ]
     }
@@ -167,6 +167,9 @@ module "eks_blueprints_base_addons" {
 
   enable_aws_node_termination_handler = true
   enable_karpenter                    = true
+  karpenter_helm_config               = {}
+  karpenter_irsa_policies             = []
+  karpenter_node_iam_instance_profile = module.eks_blueprints.managed_node_group_iam_instance_profile_id[0]
 
   enable_aws_for_fluentbit = true
   aws_for_fluentbit_helm_config = {
