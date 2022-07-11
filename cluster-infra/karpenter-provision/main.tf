@@ -33,31 +33,15 @@ module "karpenter_launch_template" {
   })
 }
 
-resource "kubectl_manifest" "karpenter_nodetmpl" {
-  yaml_body = <<YAML
-apiVersion: karpenter.sh/v1alpha5
-kind: AWSNodeTemplate
-metadata:
-  name: ${var.karpenter_provisioner_name}
-spec:
-  amiFamily: AL2
-  subnetSelector:
-    dbs-networktags: private
-  securityGroupSelector:
-    karpenter.sh/discovery/${var.addon_context.eks_cluster_id}: '*'
-  instanceProfile: ${var.worker_node_iam_instance_profile}
-  ${yamlencode(local.template_tags)}
-
-YAML
-}
-
-resource "kubectl_manifest" "karpenter_provisioner" {
+resource "kubectl_manifest" "karpenter_default" {
   yaml_body = <<YAML
 apiVersion: karpenter.sh/v1alpha5
 kind: Provisioner
 metadata:
   name: ${var.karpenter_provisioner_name}
 spec:
+  ttlSecondsUntilExpired: 2592000
+  ttlSecondsAfterEmpty: 60
   labels:
     daughertylabs.io/networktags: private
     daughertylabs.io/availability: preemptable
@@ -67,7 +51,7 @@ spec:
       values: ${local.azs_string}
     - key: "kubernetes.io/arch"
       operator: In
-      values: ["amd64"]
+      values: ["arm64", "amd64"]
     - key: "karpenter.sh/capacity-type"
       operator: In
       values: ["spot", "on-demand"]
@@ -75,9 +59,10 @@ spec:
     resources:
       cpu: 1000
       memory: 1000Gi
-  providerRef:
-    name: ${var.karpenter_provisioner_name}
-  ttlSecondsUntilExpired: 2592000
-  ttlSecondsAfterEmpty: 60
+  provider:
+    launchTemplate: '${module.karpenter_launch_template.launch_template_name["linux"]}'
+    subnetSelector:
+      dbs-networktags: private
+  ttlSecondsAfterEmpty: 120
 YAML
 }
