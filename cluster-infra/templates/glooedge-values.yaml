@@ -15,6 +15,7 @@ gatewayProxies:
     kind:
       deployment:
         replicas: 2
-        nodeSelector:
-          daughertylabs.io/networktags: public
+    podTemplate:
+      nodeSelector:
+        daughertylabs.io/networktags: public
 
