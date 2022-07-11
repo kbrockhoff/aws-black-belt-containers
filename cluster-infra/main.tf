@@ -239,7 +239,7 @@ module "eks_blueprints_base_addons" {
 
   tags = module.this.tags
 
-  depends_on = [module.eks_blueprints, module.vpc_cni, aws_kms_key.logs]
+  depends_on = [module.eks_blueprints, module.vpc_cni, aws_kms_key.logs, aws_s3_bucket.backups]
 }
 
 resource "kubectl_manifest" "default_tg" {
