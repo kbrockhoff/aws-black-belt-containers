@@ -321,6 +321,7 @@ module "prometheus_stack" {
     eks_oidc_issuer_url            = module.eks_blueprints.eks_oidc_issuer_url
     eks_oidc_provider_arn          = module.eks_blueprints.eks_oidc_provider_arn
     tags                           = module.this.tags
+    initial_passwd                 = random_password.grafana.result
   }
   ingress_hostnames = concat(local.alertmanager_hosts, local.grafana_hosts)
   route53_zone_id   = data.aws_route53_zone.public.zone_id
