@@ -20,11 +20,12 @@ module "karpenter_launch_template" {
           encrypted             = true
         }
       ]
-      pre_userdata         = var.launch_template_pre_userdata
-      bootstrap_extra_args = var.launch_template_bootstrap_extra_args
-      post_userdata        = var.launch_template_post_userdata
-      kubelet_extra_args   = var.launch_template_kubelet_extra_args
-      service_ipv4_cidr    = var.launch_template_service_ipv4_cidr
+      pre_userdata            = var.launch_template_pre_userdata
+      bootstrap_extra_args    = var.launch_template_bootstrap_extra_args
+      post_userdata           = var.launch_template_post_userdata
+      kubelet_extra_args      = var.launch_template_kubelet_extra_args
+      service_ipv4_cidr       = var.launch_template_service_ipv4_cidr
+      enable_metadata_options = true
     }
   }
 
@@ -41,7 +42,7 @@ metadata:
   name: ${var.karpenter_provisioner_name}
 spec:
   ttlSecondsUntilExpired: 2592000
-  ttlSecondsAfterEmpty: 60
+  ttlSecondsAfterEmpty: 600
   labels:
     daughertylabs.io/networktags: private
     daughertylabs.io/availability: preemptable
