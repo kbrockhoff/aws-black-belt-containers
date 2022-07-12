@@ -60,7 +60,6 @@ spec:
       cpu: 1000
       memory: 1000Gi
   provider:
-    instanceProfile: ${var.worker_node_iam_instance_profile}
     launchTemplate: '${module.karpenter_launch_template.launch_template_name["linux"]}'
     subnetSelector:
       dbs-networktags: private
