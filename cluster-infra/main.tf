@@ -360,3 +360,9 @@ module "karpenter_provisioning" {
 
   depends_on = [module.eks_blueprints_base_addons]
 }
+
+resource "aws_ssm_parameter" "iam_profile" {
+  name  = "/kwb/instance-profile"
+  type  = "String"
+  value = join(",", module.eks_blueprints.managed_node_group_iam_instance_profile_id)
+}
