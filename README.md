@@ -16,4 +16,10 @@ following features:
   * host - logs of underlying host VM
 * Terraform-provisioned ALB exposed to Internet protected by ACM and WAF.
   * Target group managed by ALB Ingress Controller using TargetGroupBinding.
-* APIGateway / Ingress functionality managed by Gloo Edge.
+* Default ingress functionality using ingress-nginx.
+  * Used primarily for platform services such as ArgoCD and Grafana.
+* APIGateway functionality managed by Gloo Edge.
+* Node autoscaling managed by Karpenter with a single Provisioner.
+* Velero used to manage backups.
+* App-of-apps pattern used to deploy additional platform-services via ArgoCD.
+
