@@ -1,15 +1,16 @@
 locals {
-  account_id       = data.aws_caller_identity.current.account_id
-  partition_id     = data.aws_partition.current.id
-  partition_suffix = data.aws_partition.current.dns_suffix
-  cluster_name     = module.this.name_prefix
-  noderole_name    = "${local.cluster_name}-managednodes"
-  lb_name          = local.cluster_name
-  waf_name         = "${local.cluster_name}-waf"
-  appslog_name     = "/dl/eks/${local.cluster_name}/application"
-  datalog_name     = "/dl/eks/${local.cluster_name}/dataplane"
-  hostlog_name     = "/dl/eks/${local.cluster_name}/host"
-  argocd_name      = "${local.cluster_name}-argocd"
+  account_id        = data.aws_caller_identity.current.account_id
+  partition_id      = data.aws_partition.current.id
+  partition_suffix  = data.aws_partition.current.dns_suffix
+  cluster_name      = module.this.name_prefix
+  noderole_name     = "${local.cluster_name}-managednodes"
+  karp_profile_name = "${local.cluster_name}-karpenter"
+  lb_name           = local.cluster_name
+  waf_name          = "${local.cluster_name}-waf"
+  appslog_name      = "/dl/eks/${local.cluster_name}/application"
+  datalog_name      = "/dl/eks/${local.cluster_name}/dataplane"
+  hostlog_name      = "/dl/eks/${local.cluster_name}/host"
+  argocd_name       = "${local.cluster_name}-argocd"
 
   eks_map_roles = concat([
     {

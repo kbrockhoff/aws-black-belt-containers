@@ -169,7 +169,7 @@ module "eks_blueprints_base_addons" {
   enable_karpenter                    = true
   karpenter_helm_config               = {}
   karpenter_irsa_policies             = []
-  karpenter_node_iam_instance_profile = module.eks_blueprints.managed_node_group_iam_instance_profile_id[0]
+  karpenter_node_iam_instance_profile = aws_iam_instance_profile.karpenter.name
 
   enable_aws_for_fluentbit = true
   aws_for_fluentbit_helm_config = {
@@ -351,7 +351,7 @@ module "karpenter_provisioning" {
   karpenter_provisioner_name           = "default"
   eks_cluster_version                  = module.eks_blueprints.eks_cluster_version
   worker_node_security_group_id        = module.eks_blueprints.worker_node_security_group_id
-  worker_node_iam_instance_profile     = module.eks_blueprints.managed_node_group_iam_instance_profile_id[0]
+  worker_node_iam_instance_profile     = aws_iam_instance_profile.karpenter.name
   launch_template_pre_userdata         = templatefile("${path.module}/templates/eks-nodes-userdata.sh", {})
   launch_template_kubelet_extra_args   = "--node-labels=daughertylabs.io/networktags=private,daughertylabs.io/availability=preemptable"
   launch_template_bootstrap_extra_args = "--use-max-pods false"
@@ -359,10 +359,4 @@ module "karpenter_provisioning" {
   availability_zones                   = local.node_av_zones
 
   depends_on = [module.eks_blueprints_base_addons]
-}
-
-resource "aws_ssm_parameter" "iam_profile" {
-  name  = "/kwb/instance-profile"
-  type  = "String"
-  value = join(",", module.eks_blueprints.managed_node_group_iam_instance_profile_id)
 }
